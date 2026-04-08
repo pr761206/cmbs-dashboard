@@ -309,6 +309,10 @@
     <select id="filterCity"><option value="">All Cities</option></select>
   </div>
   <div class="filter-group">
+    <label>Source</label>
+    <select id="filterSource"><option value="">All Sources</option></select>
+  </div>
+  <div class="filter-group">
     <label>Search</label>
     <input type="text" id="filterSearch" placeholder="Property name...">
   </div>
@@ -322,6 +326,7 @@
         <th data-sort="name">Property <span class="sort-arrow"></span></th>
         <th data-sort="city">City <span class="sort-arrow"></span></th>
         <th data-sort="state">State <span class="sort-arrow"></span></th>
+        <th data-sort="source">Source <span class="sort-arrow"></span></th>
         <th data-sort="units">Units <span class="sort-arrow"></span></th>
         <th data-sort="score">Score <span class="sort-arrow"></span></th>
         <th data-sort="tier">Tier <span class="sort-arrow"></span></th>
@@ -374,6 +379,7 @@ const COL_MAP = {
   'Rate Type': 'rateType',
   'Status': 'status',
   'Date Found': 'dateFound',
+  'Data Source': 'source',
 };
 
 function parseSheetRow(row) {
@@ -407,6 +413,7 @@ const TIER_COLORS = {'HOT':'#ff4444','WARM':'#ff8800','WATCH':'#ADFF2F','WATCH*'
 
 let filterState = '';
 let filterCity = '';
+let filterSource = '';
 let filterSearch = '';
 let filterTier = '';
 let sortCol = 'score';
@@ -426,6 +433,7 @@ function filtered() {
   return LEADS.filter(l => {
     if (filterState && l.state !== filterState) return false;
     if (filterCity && l.city !== filterCity) return false;
+    if (filterSource && l.source !== filterSource) return false;
     if (filterTier && l.tier !== filterTier) return false;
     if (filterSearch && !l.name.toLowerCase().includes(filterSearch.toLowerCase())) return false;
     return true;
@@ -489,6 +497,11 @@ function buildFilters() {
   const states = [...new Set(LEADS.map(l=>l.state))].sort();
   const stSel = document.getElementById('filterState');
   stSel.innerHTML = '<option value="">All States</option>' + states.map(s=>`<option value="${s}">${STATE_NAMES[s]||s}</option>`).join('');
+
+  const sources = [...new Set(LEADS.map(l => l.source).filter(Boolean))].sort();
+  const srcSel = document.getElementById('filterSource');
+  srcSel.innerHTML = '<option value="">All Sources</option>' + sources.map(s=>`<option value="${s}">${s}</option>`).join('');
+
   updateCityFilter();
 }
 
@@ -515,7 +528,7 @@ function renderTable() {
     if (sortCol === 'tier') { va = TIER_ORDER.indexOf(va); vb = TIER_ORDER.indexOf(vb); }
     if (sortCol === 'units' || sortCol === 'balance' || sortCol === 'score') { va = Number(va)||0; vb = Number(vb)||0; }
     if (sortCol === 'dscr' || sortCol === 'occupancy') { va = va===null?-1:Number(va); vb = vb===null?-1:Number(vb); }
-    if (sortCol === 'lender' || sortCol === 'servicer') { va = (va||'').toLowerCase(); vb = (vb||'').toLowerCase(); }
+    if (sortCol === 'lender' || sortCol === 'servicer' || sortCol === 'source') { va = (va||'').toLowerCase(); vb = (vb||'').toLowerCase(); }
     if (va < vb) return -1 * sortDir;
     if (va > vb) return 1 * sortDir;
     return 0;
@@ -537,6 +550,7 @@ function renderTable() {
       <td style="font-weight:700">${l.name}</td>
       <td>${l.city}</td>
       <td>${l.state}</td>
+      <td>${l.source || '—'}</td>
       <td>${l.units||'—'}</td>
       <td><div class="score-bar"><div class="score-bar-fill" style="width:${scorePct}%;background:${scoreColor}"></div></div>${l.score}</td>
       <td><span class="tier-badge tier-${tierClass}">${l.tier}</span></td>
@@ -569,6 +583,10 @@ function bindEvents() {
   });
   document.getElementById('filterCity').addEventListener('change', e => {
     filterCity = e.target.value;
+    renderTable();
+  });
+  document.getElementById('filterSource').addEventListener('change', e => {
+    filterSource = e.target.value;
     renderTable();
   });
   document.getElementById('filterSearch').addEventListener('input', e => {
