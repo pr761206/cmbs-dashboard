@@ -221,6 +221,42 @@
   }
   .signal-tag.distress { background: #3a1111; color: #ff6666; }
 
+  /* ── Property Link ── */
+  .prop-link {
+    color: #FFFFFF;
+    text-decoration: none;
+    border-bottom: 1px dotted #555;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .prop-link:hover { color: #ADFF2F; border-color: #ADFF2F; }
+
+  /* ── Executive Summary Cell ── */
+  .exec-summary {
+    max-width: 260px;
+    white-space: normal;
+    line-height: 1.35;
+    font-size: 11px;
+    color: #aaa;
+    cursor: default;
+  }
+  .exec-summary-short {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .exec-summary.expanded .exec-summary-short {
+    -webkit-line-clamp: unset;
+  }
+  .exec-toggle {
+    color: #ADFF2F;
+    font-size: 10px;
+    cursor: pointer;
+    margin-top: 2px;
+    display: inline-block;
+  }
+  .exec-toggle:hover { text-decoration: underline; }
+
   /* ── Map Section ── */
   .map-section {
     padding: 8px 48px 16px;
@@ -337,6 +373,7 @@
         <th data-sort="lender">Lender <span class="sort-arrow"></span></th>
         <th data-sort="servicer">Servicer <span class="sort-arrow"></span></th>
         <th>Signals</th>
+        <th>Executive Summary</th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -546,8 +583,22 @@ function renderTable() {
     const occDisplay = l.occupancy !== null ? l.occupancy.toFixed(1) + '%' : '<span style="color:#555">—</span>';
     const balDisplay = l.balance ? '$' + (l.balance >= 1e6 ? (l.balance/1e6).toFixed(1)+'M' : (l.balance/1e3).toFixed(0)+'K') : '—';
 
+    // Build Google Sheet row link
+    const sheetId = '1pKXelpQSWMOA9TneczajTSaDP1NqwwF14KtMmVudsTU';
+    const rowNum = l._rowIndex || '';
+    const sheetLink = rowNum ? `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=0&range=A${rowNum}` : '';
+    const propCell = sheetLink
+      ? `<a class="prop-link" href="${sheetLink}" target="_blank" title="Open in Google Sheet → Row ${rowNum}">${l.name}</a>`
+      : l.name;
+
+    // Executive summary (expandable)
+    const execRaw = (l.executiveSummary || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    const execCell = execRaw
+      ? `<div class="exec-summary" onclick="this.classList.toggle('expanded')"><div class="exec-summary-short">${execRaw}</div><span class="exec-toggle">more ▾</span></div>`
+      : '<span style="color:#555">—</span>';
+
     return `<tr>
-      <td style="font-weight:700">${l.name}</td>
+      <td style="font-weight:700">${propCell}</td>
       <td>${l.city}</td>
       <td>${l.state}</td>
       <td>${l.source || '—'}</td>
@@ -561,6 +612,7 @@ function renderTable() {
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${l.lender||''}">${l.lender||'—'}</td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${l.servicer||''}">${l.servicer||'—'}</td>
       <td>${signals}</td>
+      <td>${execCell}</td>
     </tr>`;
   }).join('');
 
@@ -647,7 +699,7 @@ if (SHEET_CSV_URL.includes('PASTE_YOUR_PUBLISHED_ID_HERE')) {
     .then(csv => {
       const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
       if (parsed.data && parsed.data.length > 0) {
-        LEADS = parsed.data.map(parseSheetRow).filter(r => r.name && r.name.trim());
+        LEADS = parsed.data.map((row, i) => { const r = parseSheetRow(row); r._rowIndex = i + 2; return r; }).filter(r => r.name && r.name.trim());
         showStatus('LIVE — ' + LEADS.length + ' leads from Google Sheets', '#1A3320');
       } else {
         LEADS = FALLBACK_LEADS;
