@@ -391,58 +391,113 @@
 // After you Publish to Web (see instructions), paste your CSV link here:
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRUs1ua1i9_IvnJQ_lWet1puckH_Gaf49gW3J1kHuUs-9xcP4tuzojtS9pUxdgPSOr9T88A9SLpdmT/pub?gid=0&single=true&output=csv';
 
-// ── COLUMN MAPPING (Google Sheet header → dashboard field) ──
-const COL_MAP = {
-  'Property Name': 'name',
-  'City': 'city',
-  'State': 'state',
-  'Units': 'units',
-  'DSCR': 'dscr',
-  'Occupancy': 'occupancy',
-  'Payment Status': 'paymentStatus',
-  'Loan Balance': 'balance',
-  'Maturity Date': 'maturity',
-  'Distress Score': 'score',
-  'Priority Tier': 'tier',
-  'Distress Signals': 'signals',
-  'Lender': 'lender',
-  'Servicer': 'servicer',
-  'Executive Summary': 'executiveSummary',
-  'Acquisition Angle': 'acquisitionAngle',
-  'CMBS Trust': 'cmbsTrust',
-  'Property Address': 'address',
-  'County': 'county',
-  'Borrower Entity': 'borrower',
-  'Rate Type': 'rateType',
-  'Status': 'status',
-  'Date Found': 'dateFound',
-  'Data Source': 'source',
-};
-
-function parseSheetRow(row) {
-  const out = {};
-  for (const [sheetCol, field] of Object.entries(COL_MAP)) {
-    out[field] = row[sheetCol] !== undefined ? row[sheetCol] : null;
+function firstValue(row, keys) {
+  for (const key of keys) {
+    if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+      return row[key];
+    }
   }
-  // Coerce numbers
-  out.dscr = out.dscr ? parseFloat(out.dscr) || null : null;
-  out.occupancy = out.occupancy ? parseFloat(out.occupancy) || null : null;
-  out.paymentStatus = parseInt(out.paymentStatus || '0', 10) || 0;
-  out.balance = parseFloat((out.balance || '0').toString().replace(/[,$]/g, '')) || 0;
-  out.score = parseInt(out.score || '0', 10) || 0;
+  return null;
+}
+
+function parseNum(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const cleaned = String(value).replace(/[%,$]/g, '').trim();
+  const n = parseFloat(cleaned);
+  return Number.isFinite(n) ? n : null;
+}
+
+function parseIntSafe(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const n = parseInt(String(value).trim(), 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+// Supports BOTH normalized schema and legacy sheet headers
+function parseSheetRow(row) {
+  const out = {
+    name: firstValue(row, ['property_name', 'Property Name', 'name']),
+    city: firstValue(row, ['city', 'City']),
+    state: firstValue(row, ['state', 'State']),
+    source: firstValue(row, ['source', 'Data Source', 'Source']),
+    units: firstValue(row, ['units', 'Units']),
+    dscr: firstValue(row, ['dscr', 'DSCR']),
+    occupancy: firstValue(row, ['occupancy', 'Occupancy']),
+    balance: firstValue(row, ['loan_balance', 'Loan Balance', 'balance']),
+    maturity: firstValue(row, ['maturity_date', 'Maturity Date', 'maturity']),
+    lender: firstValue(row, ['lender', 'Lender']),
+    servicer: firstValue(row, ['servicer', 'Servicer']),
+    executiveSummary: firstValue(row, ['executiveSummary', 'Executive Summary', 'executive_summary']),
+    acquisitionAngle: firstValue(row, ['acquisitionAngle', 'Acquisition Angle', 'acquisition_angle']),
+    distressSignals: firstValue(row, ['distressSignals', 'Distress Signals', 'distress_signals', 'signals']),
+    priorityTier: firstValue(row, ['priorityTier', 'Priority Tier', 'priority_tier', 'tier']),
+    adjustedScore: firstValue(row, ['adjustedScore', 'Adjusted Score', 'adjusted_score', 'score']),
+    baseDistressScore: firstValue(row, ['baseDistressScore', 'Base Distress Score', 'base_distress_score']),
+    scoreAdjustment: firstValue(row, ['scoreAdjustment', 'Score Adjustment', 'score_adjustment']),
+    dataQualityFlag: firstValue(row, ['dataQualityFlag', 'Data Quality Flag', 'data_quality_flag']),
+    status: firstValue(row, ['status', 'Status']),
+    lastUpdated: firstValue(row, ['lastUpdated', 'Last Updated', 'last_updated']),
+    address: firstValue(row, ['address', 'Property Address', 'Address']),
+    county: firstValue(row, ['county', 'County']),
+    borrower: firstValue(row, ['borrower', 'Borrower Entity', 'Borrower']),
+    rateType: firstValue(row, ['rate_type', 'rateType', 'Rate Type']),
+    cmbsTrust: firstValue(row, ['cmbsTrust', 'CMBS Trust']),
+    reportPeriod: firstValue(row, ['report_period', 'Report Period']),
+    loanNumber: firstValue(row, ['loan_number', 'Loan Number']),
+    transactionId: firstValue(row, ['transaction_id', 'Transaction ID']),
+  };
+
+  out.dscr = parseNum(out.dscr);
+  out.occupancy = parseNum(out.occupancy);
+  out.balance = parseNum(out.balance) || 0;
+  out.adjustedScore = parseIntSafe(out.adjustedScore) || 0;
+  out.baseDistressScore = parseIntSafe(out.baseDistressScore);
+  out.scoreAdjustment = parseIntSafe(out.scoreAdjustment) || 0;
   out.units = out.units || '';
-  out.tier = out.tier || 'PASS';
-  out.signals = out.signals || '';
+  out.priorityTier = out.priorityTier || 'PASS (no data)';
+  out.distressSignals = out.distressSignals || '';
+  out.executiveSummary = out.executiveSummary || '';
   out.lender = out.lender || '';
   out.servicer = out.servicer || '';
+  out.source = out.source || 'Unknown';
+  out.city = out.city || '';
+  out.state = out.state || '';
+  out.name = out.name || '';
   return out;
 }
 
 // ── DATA VARIABLE (set by live fetch or fallback) ──
 let LEADS = [];
 
-// ── FALLBACK DATA (snapshot from 2026-04-08) ──
-const FALLBACK_LEADS = [{"name": "The Hill", "city": "Columbus", "state": "GA", "units": "258", "dscr": null, "occupancy": 58.14, "paymentStatus": 2, "balance": 4100000.0, "maturity": "01-06-2029", "score": 100, "tier": "HOT", "signals": "Payment Status: 2; Special Servicer; Workout; Low Occupancy", "lender": "Argentic Real Estate Finance 2 LLC", "servicer": "Berkadia", "specialServicer": true, "workout": true}, {"name": "Residence at Patriot Place", "city": "Columbus", "state": "GA", "units": "257", "dscr": null, "occupancy": null, "paymentStatus": 3, "balance": 33000000.0, "maturity": "12-06-2028", "score": 100, "tier": "HOT", "signals": "Payment Status: 3; Special Servicer; Workout", "lender": "UBS AG", "servicer": "Midland Loan Services", "specialServicer": true, "workout": true}, {"name": "THE WYMORE 360", "city": "Altamonte Springs", "state": "FL", "units": "200", "dscr": 0.4983, "occupancy": 81.0, "paymentStatus": 0, "balance": 33000000.0, "maturity": "11-06-2029", "score": 40, "tier": "WATCH", "signals": "Low DSCR", "lender": "DBR Investments Co. Limited", "servicer": "Wells Fargo Bank, NA", "specialServicer": false, "workout": false}, {"name": "ARBOR GLADE", "city": "Ocala", "state": "FL", "units": "32", "dscr": 0.3054, "occupancy": 94.0, "paymentStatus": 0, "balance": 2705000.0, "maturity": "02-01-2035", "score": 35, "tier": "WATCH", "signals": "Low DSCR", "lender": "KeyBank National Association", "servicer": "KeyBank National Association", "specialServicer": false, "workout": false}, {"name": "SENTRAL SOBRO", "city": "Nashville", "state": "TN", "units": "299", "dscr": 1.2835, "occupancy": 68.0, "paymentStatus": 0, "balance": 45500000.0, "maturity": "11-06-2029", "score": 30, "tier": "WATCH", "signals": "Low Occupancy", "lender": "German American Capital Corporation; Goldman Sachs Bank USA", "servicer": "Wells Fargo Bank, NA", "specialServicer": false, "workout": false}, {"name": "Grand Apartments", "city": "Fort Myers", "state": "FL", "units": "57", "dscr": 1.5397, "occupancy": 68.75, "paymentStatus": 0, "balance": 6088617.0, "maturity": "09-06-2030", "score": 30, "tier": "WATCH", "signals": "Low Occupancy", "lender": "Citi Real Estate Funding Inc.", "servicer": "Berkadia", "specialServicer": false, "workout": false}, {"name": "Westshore Crossing", "city": "Tampa", "state": "FL", "units": "337", "dscr": 0.7997, "occupancy": null, "paymentStatus": 0, "balance": 10400000.0, "maturity": "07-06-2029", "score": 25, "tier": "PASS", "signals": "Low DSCR", "lender": "UBS AG", "servicer": "KeyBank National Association", "specialServicer": false, "workout": false}, {"name": "Westshore Crossing", "city": "Tampa", "state": "FL", "units": "337", "dscr": 0.7997, "occupancy": null, "paymentStatus": 0, "balance": 15000000.0, "maturity": "07-06-2029", "score": 25, "tier": "PASS", "signals": "Low DSCR", "lender": "UBS AG", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "Cocoa Grand Apartments", "city": "Cocoa", "state": "FL", "units": "268", "dscr": 0.8305, "occupancy": null, "paymentStatus": 0, "balance": 46900000.0, "maturity": "08-06-2029", "score": 25, "tier": "PASS", "signals": "Low DSCR", "lender": "Citi Real Estate Funding Inc.", "servicer": "Berkadia", "specialServicer": false, "workout": false}, {"name": "AL &amp; SC Multifamily Portfolio", "city": "Hoover", "state": "AL", "units": "149", "dscr": null, "occupancy": null, "paymentStatus": 1, "balance": 30350000.0, "maturity": "11-06-2029", "score": 20, "tier": "PASS (no data)", "signals": "Payment Status: 1", "lender": "Citi Real Estate Funding Inc.", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "Greenhaven Townhouses", "city": "Charlotte", "state": "NC", "units": "49", "dscr": null, "occupancy": null, "paymentStatus": 1, "balance": 3062835.0, "maturity": "11-01-2026", "score": 20, "tier": "PASS (no data)", "signals": "Payment Status: 1", "lender": "ReadyCap Commercial, LLC", "servicer": "Berkadia", "specialServicer": false, "workout": false}, {"name": "The Grant", "city": "Atlanta", "state": "GA", "units": "112", "dscr": 1.2084, "occupancy": 98.21, "paymentStatus": 0, "balance": 19250000.0, "maturity": "08-06-2029", "score": 10, "tier": "PASS", "signals": "", "lender": "Starwood Mortgage Capital LLC", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "C.I.G. Multifamily Portfolio", "city": "Roxboro", "state": "NC", "units": "48", "dscr": 1.362, "occupancy": 81.25, "paymentStatus": 0, "balance": 24460000.0, "maturity": "07-06-2029", "score": 5, "tier": "PASS", "signals": "", "lender": "Societe Generale Financial Corporation", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "Walnut Ridge", "city": "Leesburg", "state": "FL", "units": "24", "dscr": 1.731, "occupancy": 87.5, "paymentStatus": 0, "balance": 2650000.0, "maturity": "07-01-2034", "score": 5, "tier": "PASS", "signals": "", "lender": "KeyBank National Association", "servicer": "KeyBank National Association", "specialServicer": false, "workout": false}, {"name": "BAHIA APARTMENTS", "city": "Tampa", "state": "FL", "units": "320", "dscr": 2.1968, "occupancy": 85.0, "paymentStatus": 0, "balance": 35000000.0, "maturity": "12-06-2031", "score": 5, "tier": "PASS", "signals": "", "lender": "LMF Commercial, LLC and CREFI", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "Columbia Arms and Aspen-Alpine Apartments", "city": "Lake City", "state": "FL", "units": "114", "dscr": 2.3955, "occupancy": 100.0, "paymentStatus": 0, "balance": 5595996.0, "maturity": "06-01-2032", "score": 0, "tier": "PASS", "signals": "", "lender": "Arbor Private Label, LLC", "servicer": "Arbor Multifamily Lending, LLC", "specialServicer": false, "workout": false}, {"name": "West Palm Gardens", "city": "West Palm Beach", "state": "FL", "units": "437", "dscr": 1.6601, "occupancy": 92.22, "paymentStatus": 0, "balance": 50000000.0, "maturity": "10-06-2029", "score": 0, "tier": "PASS", "signals": "", "lender": "Citi Real Estate Funding Inc.", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "Playa Blanca Apartments", "city": "Milton", "state": "FL", "units": "97", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 7650000.0, "maturity": "09-06-2030", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Argentic Real Estate Finance 2 LLC", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "Coastline Apartments", "city": "Fort Walton Beach", "state": "FL", "units": "301", "dscr": 2.6116, "occupancy": 97.34, "paymentStatus": 0, "balance": 38000000.0, "maturity": "02-06-2029", "score": 0, "tier": "PASS", "signals": "", "lender": "Argentic Real Estate Finance 2 LLC; Bank of Montreal", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "La Provence Apartments", "city": "Lake Wales", "state": "FL", "units": "56", "dscr": 1.4681, "occupancy": 91.53, "paymentStatus": 0, "balance": 5000000.0, "maturity": "04-06-2029", "score": 0, "tier": "PASS", "signals": "", "lender": "UBS AG", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "Wilson Crossing Townhomes", "city": "Memphis", "state": "TN", "units": "155", "dscr": 1.5453, "occupancy": 96.77, "paymentStatus": 0, "balance": 12120000.0, "maturity": "10-05-2030", "score": 0, "tier": "PASS", "signals": "", "lender": "3650 Capital SCF LOE I(A), LLC", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "1198 Woodland Avenue NE", "city": "Atlanta", "state": "GA", "units": "385", "dscr": 1.2747, "occupancy": 92.47, "paymentStatus": 0, "balance": 66500000.0, "maturity": "08-06-2029", "score": 0, "tier": "PASS", "signals": "", "lender": "Starwood Mortgage Capital LLC", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "Creekwood Club", "city": "Jacksonville", "state": "FL", "units": "176", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 20000000.0, "maturity": "07-06-2029", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "UBS AG", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "Icon One Daytona", "city": "Daytona Beach", "state": "FL", "units": "282", "dscr": 1.666, "occupancy": 92.2, "paymentStatus": 0, "balance": 15000000.0, "maturity": "09-05-2031", "score": 0, "tier": "PASS", "signals": "", "lender": "3650 Real Estate Investment Trust 2 LLC", "servicer": "Midland", "specialServicer": false, "workout": false}, {"name": "Village at Rankin", "city": "Greensboro", "state": "NC", "units": "130", "dscr": 1.3663, "occupancy": 90.0, "paymentStatus": 0, "balance": 5351176.0, "maturity": "09-01-2031", "score": 0, "tier": "PASS", "signals": "", "lender": "ReadyCap Commercial, LLC", "servicer": "KeyBank National Association", "specialServicer": false, "workout": false}, {"name": "Harbor View Apartments", "city": "Jacksonville", "state": "FL", "units": "17", "dscr": 1.4434, "occupancy": null, "paymentStatus": 0, "balance": 2530649.0, "maturity": "06-01-2031", "score": 0, "tier": "PASS", "signals": "", "lender": "ReadyCap Commercial, LLC", "servicer": "KeyBank National Association", "specialServicer": false, "workout": false}, {"name": "Upper Westside Apartments", "city": "Gainesville", "state": "FL", "units": "22", "dscr": 1.57, "occupancy": 100.0, "paymentStatus": 0, "balance": 2297994.0, "maturity": "11-06-2031", "score": 0, "tier": "PASS", "signals": "", "lender": "Sabal Capital II, LLC", "servicer": "KeyBank Real Estate Capital", "specialServicer": false, "workout": false}, {"name": "Thompson Court", "city": "Memphis", "state": "TN", "units": "338", "dscr": 3.0, "occupancy": 95.86, "paymentStatus": 0, "balance": 12000000.0, "maturity": "01-06-2032", "score": 0, "tier": "PASS", "signals": "", "lender": "BMO", "servicer": "KeyBank Real Estate Capital", "specialServicer": false, "workout": false}, {"name": "SENTRAL WYNWOOD", "city": "Miami", "state": "FL", "units": "175", "dscr": 1.4121, "occupancy": 100.0, "paymentStatus": 0, "balance": 45500000.0, "maturity": "11-06-2029", "score": 0, "tier": "PASS", "signals": "", "lender": "German American Capital Corporation; Goldman Sachs Bank USA", "servicer": "Wells Fargo Bank, NA", "specialServicer": false, "workout": false}, {"name": "The Winn", "city": "Rossville", "state": "GA", "units": "188", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 14500000.0, "maturity": "07-06-2034", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Argentic Real Estate Finance 2 LLC", "servicer": "Midland", "specialServicer": false, "workout": false}, {"name": "Riviera", "city": "Macon", "state": "GA", "units": "40", "dscr": 1.8637, "occupancy": 100.0, "paymentStatus": 0, "balance": 7585000.0, "maturity": "01-01-2033", "score": 0, "tier": "PASS", "signals": "", "lender": "Arbor Private Label, LLC", "servicer": "Arbor Multifamily Lending, LLC", "specialServicer": false, "workout": false}, {"name": "The Lisbon", "city": "Kissimmee", "state": "FL", "units": "173", "dscr": 2.14, "occupancy": 94.8, "paymentStatus": 0, "balance": 8000000.0, "maturity": "09-06-2028", "score": 0, "tier": "PASS", "signals": "", "lender": "SMC", "servicer": "KeyBank Real Estate Capital", "specialServicer": false, "workout": false}, {"name": "Hallandale City Center", "city": "Hallandale Beach", "state": "FL", "units": "89", "dscr": 1.433, "occupancy": 90.38, "paymentStatus": 0, "balance": 22500000.0, "maturity": "06-01-2030", "score": 0, "tier": "PASS", "signals": "", "lender": "Societe Generale Financial Corporation", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "RIVERWALK VISTA", "city": "Columbia", "state": "SC", "units": "237", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 26000000.0, "maturity": "08-06-2030", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "SMC", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "Palm Harbor and Heatherwood Portfolio", "city": "", "state": "FL", "units": "223", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 21980000.0, "maturity": "11-01-2030", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "MSBNA", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "PALM HARBOR VILLAS", "city": "Melbourne", "state": "FL", "units": "115", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 21980000.0, "maturity": "11-01-2030", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "MSBNA", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "HEATHERWOOD APARTMENTS", "city": "Kissimmee", "state": "FL", "units": "108", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 21980000.0, "maturity": "11-01-2030", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "MSBNA", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "830 EAST PARK AVENUE", "city": "Tallahassee", "state": "FL", "units": "56", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 4250000.0, "maturity": "11-06-2030", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "SMC", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "SABLE POINTE APARTMENTS", "city": "Buford", "state": "GA", "units": "258", "dscr": 3.6767, "occupancy": 93.0, "paymentStatus": 0, "balance": 8968016.0, "maturity": "06-06-2027", "score": 0, "tier": "PASS", "signals": "", "lender": "Argentic Real Estate Finance LLC", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "Mendenhall Gardens and High Point Apartments", "city": "", "state": "TN", "units": "146", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 7500000.0, "maturity": "10-01-2029", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "JPMCB", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "MENDENHALL GARDENS", "city": "Memphis", "state": "TN", "units": "82", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 7500000.0, "maturity": "10-01-2029", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "JPMCB", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "HIGH POINT APARTMENTS", "city": "Memphis", "state": "TN", "units": "64", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 7500000.0, "maturity": "10-01-2029", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "JPMCB", "servicer": "Midland Loan Services", "specialServicer": false, "workout": false}, {"name": "OSPREY COVE NORTH", "city": "Jacksonville", "state": "NC", "units": "236", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 16650000.0, "maturity": "02-01-2031", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Morgan Stanley Bank, N.A.", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "Miami 8-Pack", "city": "Miami", "state": "FL", "units": "91", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 15000000.0, "maturity": "01-06-2036", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Bank of Montreal", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "2135 SOUTHWEST 6TH STREET", "city": "Miami", "state": "FL", "units": "20", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 15000000.0, "maturity": "01-06-2036", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Bank of Montreal", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "CASA BLANCA", "city": "Miami", "state": "FL", "units": "20", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 15000000.0, "maturity": "01-06-2036", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Bank of Montreal", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "2128 SOUTHWEST 5TH STREET", "city": "Miami", "state": "FL", "units": "12", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 15000000.0, "maturity": "01-06-2036", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Bank of Montreal", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "2136 SOUTHWEST 5TH STREET", "city": "Miami", "state": "FL", "units": "12", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 15000000.0, "maturity": "01-06-2036", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Bank of Montreal", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "2127 SOUTHWEST 5TH STREET", "city": "Miami", "state": "FL", "units": "9", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 15000000.0, "maturity": "01-06-2036", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Bank of Montreal", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "EAST BRICKELL", "city": "Miami", "state": "FL", "units": "6", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 15000000.0, "maturity": "01-06-2036", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Bank of Montreal", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "24 SOUTHWEST 21ST AVENUE", "city": "Miami", "state": "FL", "units": "8", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 15000000.0, "maturity": "01-06-2036", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Bank of Montreal", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "2248 SOUTHWEST 5TH STREET", "city": "Miami", "state": "FL", "units": "4", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 15000000.0, "maturity": "01-06-2036", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "Bank of Montreal", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "Morningside and The Bungalows Portfolio", "city": "", "state": "FL", "units": "257", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 22350000.0, "maturity": "12-01-2030", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "MSBNA", "servicer": "Trimont", "specialServicer": false, "workout": false}, {"name": "MORNINGSIDE APARTMENTS", "city": "Titusville", "state": "FL", "units": "183", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 22350000.0, "maturity": "12-01-2030", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "MSBNA", "servicer": "Trimont", "specialServicer": false, "workout": false}, {"name": "BUNGALOWS OF PORT ORANGE", "city": "Port Orange", "state": "FL", "units": "74", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 22350000.0, "maturity": "12-01-2030", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "MSBNA", "servicer": "Trimont", "specialServicer": false, "workout": false}, {"name": "ARCADIA ON THE RIVER", "city": "Milledgeville", "state": "GA", "units": "510", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 18200000.0, "maturity": "03-06-2035", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "German American Capital Corporation", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "CHAPEL LAKES", "city": "Wetumpka", "state": "AL", "units": "152", "dscr": 2.1272, "occupancy": 95.0, "paymentStatus": 0, "balance": 11305391.0, "maturity": "02-11-2031", "score": 0, "tier": "PASS", "signals": "", "lender": "WFB", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "CANDLEWOOD APARTMENTS and COUNTRY VILLAS", "city": "Tampa", "state": "FL", "units": "211", "dscr": 3.1888, "occupancy": 97.0, "paymentStatus": 0, "balance": 12500000.0, "maturity": "02-01-2031", "score": 0, "tier": "PASS", "signals": "", "lender": "MSBNA", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "Defeased", "city": "", "state": "GA", "units": "124", "dscr": null, "occupancy": null, "paymentStatus": 0, "balance": 4880948.0, "maturity": "11-06-2030", "score": 0, "tier": "PASS (no data)", "signals": "", "lender": "BSPRT CMBS Finance, LLC", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "ADDISON RIDGE APARTMENTS - PHASE II", "city": "Fayetteville", "state": "NC", "units": "214", "dscr": 1.6808, "occupancy": 96.0, "paymentStatus": 0, "balance": 23680281.0, "maturity": "06-06-2028", "score": 0, "tier": "PASS", "signals": "", "lender": "Rialto Mortgage Finance, LLC", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "TLR Portfolio", "city": "", "state": "FL", "units": "688", "dscr": 2.299, "occupancy": 92.0, "paymentStatus": 0, "balance": 35000000.0, "maturity": "12-06-2031", "score": 0, "tier": "PASS", "signals": "", "lender": "LMF Commercial, LLC and CREFI", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "ROYAL BREEZE APARTMENTS", "city": "Clearwater", "state": "FL", "units": "200", "dscr": 2.5687, "occupancy": 94.0, "paymentStatus": 0, "balance": 35000000.0, "maturity": "12-06-2031", "score": 0, "tier": "PASS", "signals": "", "lender": "LMF Commercial, LLC and CREFI", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "LENOX PLACE APARTMENTS", "city": "Tampa", "state": "FL", "units": "168", "dscr": 2.1482, "occupancy": 97.0, "paymentStatus": 0, "balance": 35000000.0, "maturity": "12-06-2031", "score": 0, "tier": "PASS", "signals": "", "lender": "LMF Commercial, LLC and CREFI", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "CLUBSIDE APARTMENTS", "city": "Venice", "state": "FL", "units": "77", "dscr": 2.6068, "occupancy": 90.0, "paymentStatus": 0, "balance": 6500000.0, "maturity": "10-06-2031", "score": 0, "tier": "PASS", "signals": "", "lender": "Column Financial, Inc.", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}, {"name": "BEACH BLUFF APARTMENTS", "city": "Jacksonville", "state": "FL", "units": "88", "dscr": 3.2732, "occupancy": 97.0, "paymentStatus": 0, "balance": 5525000.0, "maturity": "10-06-2031", "score": 0, "tier": "PASS", "signals": "", "lender": "Column Financial, Inc.", "servicer": "Trimont LLC", "specialServicer": false, "workout": false}];
+// ── FALLBACK DATA (legacy snapshot retained; normalized on load) ──
+const FALLBACK_LEADS = [{"name": "The Hill", "city": "Columbus", "state": "GA", "units": "258", "dscr": null, "occupancy": 58.14, "paymentStatus": 2, "balance": 4100000.0, "maturity": "01-06-2029", "score": 100, "tier": "HOT", "signals": "Payment Status: 2; Special Servicer; Workout; Low Occupancy", "lender": "Argentic Real Estate Finance 2 LLC", "servicer": "Berkadia", "specialServicer": true, "workout": true}, {"name": "Residence at Patriot Place", "city": "Columbus", "state": "GA", "units": "257", "dscr": null, "occupancy": null, "paymentStatus": 3, "balance": 33000000.0, "maturity": "12-06-2028", "score": 100, "tier": "HOT", "signals": "Payment Status: 3; Special Servicer; Workout", "lender": "UBS AG", "servicer": "Midland Loan Services", "specialServicer": true, "workout": true}, {"name": "THE WYMORE 360", "city": "Altamonte Springs", "state": "FL", "units": "200", "dscr": 0.4983, "occupancy": 81.0, "paymentStatus": 0, "balance": 33000000.0, "maturity": "11-06-2029", "score": 40, "tier": "WATCH", "signals": "Low DSCR", "lender": "DBR Investments Co. Limited", "servicer": "Wells Fargo Bank, NA", "specialServicer": false, "workout": false}];
+
+function normalizeFallbackLead(l) {
+  return {
+    name: l.name || '',
+    city: l.city || '',
+    state: l.state || '',
+    source: l.source || 'CMBS',
+    units: l.units || '',
+    dscr: l.dscr,
+    occupancy: l.occupancy,
+    balance: l.balance || 0,
+    maturity: l.maturity || '',
+    lender: l.lender || '',
+    servicer: l.servicer || '',
+    executiveSummary: l.executiveSummary || l.executive_summary || '',
+    acquisitionAngle: l.acquisitionAngle || '',
+    distressSignals: l.distressSignals || l.distress_signals || l.signals || '',
+    priorityTier: l.priorityTier || l.priority_tier || l.tier || 'PASS (no data)',
+    adjustedScore: l.adjustedScore || l.adjusted_score || l.score || 0,
+    baseDistressScore: l.baseDistressScore || null,
+    scoreAdjustment: l.scoreAdjustment || 0,
+    dataQualityFlag: l.dataQualityFlag || '',
+    status: l.status || 'New',
+    lastUpdated: l.lastUpdated || '',
+    _rowIndex: l._rowIndex || ''
+  };
+}
 
 const STATE_NAMES = {FL:'Florida',GA:'Georgia',TN:'Tennessee',NC:'North Carolina',SC:'South Carolina',AL:'Alabama'};
 const TIER_ORDER = ['HOT','WARM','WATCH','WATCH*','REVIEW','PASS','PASS (no data)'];
@@ -453,7 +508,7 @@ let filterCity = '';
 let filterSource = '';
 let filterSearch = '';
 let filterTier = '';
-let sortCol = 'score';
+let sortCol = 'adjustedScore';
 let sortDir = -1;
 
 // ── INIT ──
@@ -468,7 +523,7 @@ function init() {
 
 // PASS tier is hidden globally — too much noise
 function isActionable(l) {
-  return l.tier && !l.tier.startsWith('PASS');
+  return l.priorityTier && !l.priorityTier.startsWith('PASS');
 }
 
 function filtered() {
@@ -477,8 +532,14 @@ function filtered() {
     if (filterState && l.state !== filterState) return false;
     if (filterCity && l.city !== filterCity) return false;
     if (filterSource && l.source !== filterSource) return false;
-    if (filterTier && l.tier !== filterTier) return false;
-    if (filterSearch && !l.name.toLowerCase().includes(filterSearch.toLowerCase())) return false;
+    if (filterTier) {
+      if (filterTier === 'WATCH') {
+        if (!['WATCH','WATCH*'].includes(l.priorityTier)) return false;
+      } else if (l.priorityTier !== filterTier) {
+        return false;
+      }
+    }
+    if (filterSearch && !(l.name || '').toLowerCase().includes(filterSearch.toLowerCase())) return false;
     return true;
   });
 }
@@ -487,9 +548,9 @@ function filtered() {
 function buildStats() {
   const ACTIVE = LEADS.filter(isActionable);
   const total = ACTIVE.length;
-  const hot = ACTIVE.filter(l => l.tier === 'HOT').length;
-  const warm = ACTIVE.filter(l => l.tier === 'WARM').length;
-  const watch = ACTIVE.filter(l => ['WATCH','WATCH*'].includes(l.tier)).length;
+  const hot = ACTIVE.filter(l => l.priorityTier === 'HOT').length;
+  const warm = ACTIVE.filter(l => l.priorityTier === 'WARM').length;
+  const watch = ACTIVE.filter(l => ['WATCH','WATCH*'].includes(l.priorityTier)).length;
   const totalBal = ACTIVE.reduce((s,l) => s + (l.balance || 0), 0);
 
   document.getElementById('statsRow').innerHTML = `
@@ -498,8 +559,8 @@ function buildStats() {
     <div class="stat-card warm"><div class="label">Warm</div><div class="value" style="color:#ff8800">${warm}</div></div>
     <div class="stat-card watch"><div class="label">Watch</div><div class="value accent">${watch}</div></div>
     <div class="stat-card"><div class="label">Total Balance</div><div class="value" style="font-size:24px">$${(totalBal/1e6).toFixed(0)}M</div></div>
-    <div class="stat-card"><div class="label">States</div><div class="value">${new Set(ACTIVE.map(l=>l.state)).size}</div></div>
-    <div class="stat-card"><div class="label">Cities</div><div class="value">${new Set(ACTIVE.map(l=>l.city)).size}</div></div>
+    <div class="stat-card"><div class="label">States</div><div class="value">${new Set(ACTIVE.map(l=>l.state).filter(Boolean)).size}</div></div>
+    <div class="stat-card"><div class="label">Cities</div><div class="value">${new Set(ACTIVE.map(l=>l.city).filter(Boolean)).size}</div></div>
   `;
 }
 
@@ -509,7 +570,7 @@ function buildStateGrid() {
   LEADS.filter(isActionable).forEach(l => {
     if (!states[l.state]) states[l.state] = {total:0, tiers:{}};
     states[l.state].total++;
-    states[l.state].tiers[l.tier] = (states[l.state].tiers[l.tier]||0) + 1;
+    states[l.state].tiers[l.priorityTier] = (states[l.state].tiers[l.priorityTier]||0) + 1;
   });
 
   const grid = document.getElementById('stateGrid');
@@ -539,7 +600,7 @@ function buildStateGrid() {
 // ── FILTERS ──
 function buildFilters() {
   const ACTIVE = LEADS.filter(isActionable);
-  const states = [...new Set(ACTIVE.map(l=>l.state))].sort();
+  const states = [...new Set(ACTIVE.map(l=>l.state).filter(Boolean))].sort();
   const stSel = document.getElementById('filterState');
   stSel.innerHTML = '<option value="">All States</option>' + states.map(s=>`<option value="${s}">${STATE_NAMES[s]||s}</option>`).join('');
 
@@ -553,7 +614,7 @@ function buildFilters() {
 function updateCityFilter() {
   const base = LEADS.filter(isActionable);
   const pool = filterState ? base.filter(l=>l.state===filterState) : base;
-  const cities = [...new Set(pool.map(l=>l.city))].sort();
+  const cities = [...new Set(pool.map(l=>l.city).filter(Boolean))].sort();
   const cSel = document.getElementById('filterCity');
   cSel.innerHTML = '<option value="">All Cities</option>' + cities.map(c=>`<option value="${c}">${c}</option>`).join('');
 }
@@ -562,7 +623,7 @@ function buildTierPills() {
   const tiers = ['','HOT','WARM','WATCH'];
   const labels = ['All','HOT','WARM','WATCH'];
   document.getElementById('tierPills').innerHTML = tiers.map((t,i) => {
-    const cls = filterTier===t ? (t==='HOT'?'active-hot':t==='WARM'?'active-warm':['WATCH','WATCH*'].includes(t)?'active-watch':'active') : '';
+    const cls = filterTier===t ? (t==='HOT'?'active-hot':t==='WARM'?'active-warm':t==='WATCH'?'active-watch':'active') : '';
     return `<div class="tier-pill ${cls}" data-tier="${t}">${labels[i]}</div>`;
   }).join('');
 }
@@ -571,28 +632,30 @@ function buildTierPills() {
 function renderTable() {
   const data = filtered().sort((a,b) => {
     let va = a[sortCol], vb = b[sortCol];
-    if (sortCol === 'tier') { va = TIER_ORDER.indexOf(va); vb = TIER_ORDER.indexOf(vb); }
-    if (sortCol === 'units' || sortCol === 'balance' || sortCol === 'score') { va = Number(va)||0; vb = Number(vb)||0; }
-    if (sortCol === 'dscr' || sortCol === 'occupancy') { va = va===null?-1:Number(va); vb = vb===null?-1:Number(vb); }
-    if (sortCol === 'lender' || sortCol === 'servicer' || sortCol === 'source') { va = (va||'').toLowerCase(); vb = (vb||'').toLowerCase(); }
+    if (sortCol === 'priorityTier') { va = TIER_ORDER.indexOf(va); vb = TIER_ORDER.indexOf(vb); }
+    if (['units','balance','adjustedScore'].includes(sortCol)) { va = Number(va)||0; vb = Number(vb)||0; }
+    if (['dscr','occupancy'].includes(sortCol)) { va = va===null?-1:Number(va); vb = vb===null?-1:Number(vb); }
+    if (['lender','servicer','source','name','city','state','maturity'].includes(sortCol)) { va = (va||'').toString().toLowerCase(); vb = (vb||'').toString().toLowerCase(); }
     if (va < vb) return -1 * sortDir;
     if (va > vb) return 1 * sortDir;
     return 0;
   });
 
   document.getElementById('tableBody').innerHTML = data.map(l => {
-    const tierClass = l.tier.startsWith('PASS') ? 'PASS' : l.tier.replace(/[^A-Z]/g,'');
-    const scoreColor = l.score >= 85 ? '#ff4444' : l.score >= 60 ? '#ff8800' : l.score >= 30 ? '#ADFF2F' : '#2A2A2A';
-    const scorePct = Math.min(l.score, 100);
-    const signals = (l.signals||'').split('; ').filter(Boolean).map(s => {
-      const isDist = s.includes('Special Servicer')||s.includes('Workout')||s.includes('Low DSCR')||s.includes('Low Occ');
+    const tierLabel = l.priorityTier || 'PASS';
+    const tierClass = tierLabel.startsWith('PASS') ? 'PASS' : tierLabel.replace(/[^A-Z]/g,'');
+    const score = l.adjustedScore || 0;
+    const scoreColor = score >= 85 ? '#ff4444' : score >= 60 ? '#ff8800' : score >= 30 ? '#ADFF2F' : '#2A2A2A';
+    const scorePct = Math.min(score, 100);
+    const signals = (l.distressSignals||'').split(/\s*\|\s*|\s*;\s*/).filter(Boolean).map(s => {
+      const test = s.toLowerCase();
+      const isDist = test.includes('special servicer') || test.includes('workout') || test.includes('delinquent') || test.includes('foreclosure') || test.includes('dscr <') || test.includes('occupancy 0') || test.includes('matured');
       return `<span class="signal-tag${isDist?' distress':''}">${s}</span>`;
     }).join('');
-    const dscrDisplay = l.dscr !== null ? l.dscr.toFixed(2) : '<span style="color:#555">—</span>';
-    const occDisplay = l.occupancy !== null ? l.occupancy.toFixed(1) + '%' : '<span style="color:#555">—</span>';
+    const dscrDisplay = l.dscr !== null && l.dscr !== '' ? Number(l.dscr).toFixed(2) : '<span style="color:#555">—</span>';
+    const occDisplay = l.occupancy !== null && l.occupancy !== '' ? Number(l.occupancy).toFixed(1) + '%' : '<span style="color:#555">—</span>';
     const balDisplay = l.balance ? '$' + (l.balance >= 1e6 ? (l.balance/1e6).toFixed(1)+'M' : (l.balance/1e3).toFixed(0)+'K') : '—';
 
-    // Build Google Sheet row link
     const sheetId = '1pKXelpQSWMOA9TneczajTSaDP1NqwwF14KtMmVudsTU';
     const rowNum = l._rowIndex || '';
     const sheetLink = rowNum ? `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=0&range=A${rowNum}` : '';
@@ -600,7 +663,6 @@ function renderTable() {
       ? `<a class="prop-link" href="${sheetLink}" target="_blank" title="Open in Google Sheet → Row ${rowNum}">${l.name}</a>`
       : l.name;
 
-    // Executive summary (expandable)
     const execRaw = (l.executiveSummary || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     const execCell = execRaw
       ? `<div class="exec-summary" onclick="this.classList.toggle('expanded')"><div class="exec-summary-short">${execRaw}</div><span class="exec-toggle">more ▾</span></div>`
@@ -608,24 +670,23 @@ function renderTable() {
 
     return `<tr>
       <td style="font-weight:700">${propCell}</td>
-      <td>${l.city}</td>
-      <td>${l.state}</td>
+      <td>${l.city || '—'}</td>
+      <td>${l.state || '—'}</td>
       <td>${l.source || '—'}</td>
       <td>${l.units||'—'}</td>
-      <td><div class="score-bar"><div class="score-bar-fill" style="width:${scorePct}%;background:${scoreColor}"></div></div>${l.score}</td>
-      <td><span class="tier-badge tier-${tierClass}">${l.tier}</span></td>
+      <td><div class="score-bar"><div class="score-bar-fill" style="width:${scorePct}%;background:${scoreColor}"></div></div>${score}</td>
+      <td><span class="tier-badge tier-${tierClass}">${tierLabel}</span></td>
       <td>${dscrDisplay}</td>
       <td>${occDisplay}</td>
       <td>${balDisplay}</td>
       <td>${l.maturity||'—'}</td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${l.lender||''}">${l.lender||'—'}</td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${l.servicer||''}">${l.servicer||'—'}</td>
-      <td>${signals}</td>
+      <td>${signals || '<span style="color:#555">—</span>'}</td>
       <td>${execCell}</td>
     </tr>`;
   }).join('');
 
-  // Update header arrows
   document.querySelectorAll('thead th').forEach(th => {
     const col = th.dataset.sort;
     const arrow = th.querySelector('.sort-arrow');
@@ -676,7 +737,7 @@ function bindEvents() {
     th.addEventListener('click', () => {
       const col = th.dataset.sort;
       if (sortCol === col) sortDir *= -1;
-      else { sortCol = col; sortDir = col === 'score' || col === 'tier' ? -1 : 1; }
+      else { sortCol = col; sortDir = ['adjustedScore','priorityTier'].includes(col) ? -1 : 1; }
       renderTable();
     });
   });
@@ -695,24 +756,28 @@ function showStatus(msg, color) {
 }
 
 if (SHEET_CSV_URL.includes('PASTE_YOUR_PUBLISHED_ID_HERE')) {
-  // Not configured yet — use fallback
-  LEADS = FALLBACK_LEADS;
+  LEADS = FALLBACK_LEADS.map(normalizeFallbackLead);
   showStatus('OFFLINE MODE — using snapshot data', '#2A2A2A');
   statusEl.style.color = '#888';
   init();
 } else {
-  // Fetch live from Google Sheets
   showStatus('Fetching live data...', '#1A3320');
   fetch(SHEET_CSV_URL)
     .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
     .then(csv => {
       const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
       if (parsed.data && parsed.data.length > 0) {
-        LEADS = parsed.data.map((row, i) => { const r = parseSheetRow(row); r._rowIndex = i + 2; return r; }).filter(r => r.name && r.name.trim());
+        LEADS = parsed.data
+          .map((row, i) => {
+            const r = parseSheetRow(row);
+            r._rowIndex = i + 2;
+            return r;
+          })
+          .filter(r => r.name && r.name.trim());
         const actionableCount = LEADS.filter(isActionable).length;
         showStatus('LIVE — ' + actionableCount + ' actionable (' + LEADS.length + ' total) from Google Sheets', '#1A3320');
       } else {
-        LEADS = FALLBACK_LEADS;
+        LEADS = FALLBACK_LEADS.map(normalizeFallbackLead);
         showStatus('Sheet empty — using snapshot', '#2A2A2A');
         statusEl.style.color = '#888';
       }
@@ -720,7 +785,7 @@ if (SHEET_CSV_URL.includes('PASTE_YOUR_PUBLISHED_ID_HERE')) {
     })
     .catch(err => {
       console.warn('Live fetch failed, using fallback:', err);
-      LEADS = FALLBACK_LEADS;
+      LEADS = FALLBACK_LEADS.map(normalizeFallbackLead);
       showStatus('Fetch failed — using snapshot data', '#3a1111');
       statusEl.style.color = '#ff6666';
       init();
