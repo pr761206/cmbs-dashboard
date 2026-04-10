@@ -466,8 +466,14 @@ function init() {
   bindEvents();
 }
 
+// PASS tier is hidden globally — too much noise
+function isActionable(l) {
+  return l.tier && !l.tier.startsWith('PASS');
+}
+
 function filtered() {
   return LEADS.filter(l => {
+    if (!isActionable(l)) return false;
     if (filterState && l.state !== filterState) return false;
     if (filterCity && l.city !== filterCity) return false;
     if (filterSource && l.source !== filterSource) return false;
@@ -479,27 +485,28 @@ function filtered() {
 
 // ── STATS ──
 function buildStats() {
-  const total = LEADS.length;
-  const hot = LEADS.filter(l => l.tier === 'HOT').length;
-  const warm = LEADS.filter(l => l.tier === 'WARM').length;
-  const watch = LEADS.filter(l => ['WATCH','WATCH*'].includes(l.tier)).length;
-  const totalBal = LEADS.reduce((s,l) => s + (l.balance || 0), 0);
+  const ACTIVE = LEADS.filter(isActionable);
+  const total = ACTIVE.length;
+  const hot = ACTIVE.filter(l => l.tier === 'HOT').length;
+  const warm = ACTIVE.filter(l => l.tier === 'WARM').length;
+  const watch = ACTIVE.filter(l => ['WATCH','WATCH*'].includes(l.tier)).length;
+  const totalBal = ACTIVE.reduce((s,l) => s + (l.balance || 0), 0);
 
   document.getElementById('statsRow').innerHTML = `
-    <div class="stat-card"><div class="label">Total Leads</div><div class="value">${total}</div></div>
+    <div class="stat-card"><div class="label">Actionable Leads</div><div class="value">${total}</div></div>
     <div class="stat-card hot"><div class="label">Hot</div><div class="value accent" style="color:#ff4444">${hot}</div></div>
     <div class="stat-card warm"><div class="label">Warm</div><div class="value" style="color:#ff8800">${warm}</div></div>
     <div class="stat-card watch"><div class="label">Watch</div><div class="value accent">${watch}</div></div>
     <div class="stat-card"><div class="label">Total Balance</div><div class="value" style="font-size:24px">$${(totalBal/1e6).toFixed(0)}M</div></div>
-    <div class="stat-card"><div class="label">States</div><div class="value">${new Set(LEADS.map(l=>l.state)).size}</div></div>
-    <div class="stat-card"><div class="label">Cities</div><div class="value">${new Set(LEADS.map(l=>l.city)).size}</div></div>
+    <div class="stat-card"><div class="label">States</div><div class="value">${new Set(ACTIVE.map(l=>l.state)).size}</div></div>
+    <div class="stat-card"><div class="label">Cities</div><div class="value">${new Set(ACTIVE.map(l=>l.city)).size}</div></div>
   `;
 }
 
 // ── STATE GRID ──
 function buildStateGrid() {
   const states = {};
-  LEADS.forEach(l => {
+  LEADS.filter(isActionable).forEach(l => {
     if (!states[l.state]) states[l.state] = {total:0, tiers:{}};
     states[l.state].total++;
     states[l.state].tiers[l.tier] = (states[l.state].tiers[l.tier]||0) + 1;
@@ -531,11 +538,12 @@ function buildStateGrid() {
 
 // ── FILTERS ──
 function buildFilters() {
-  const states = [...new Set(LEADS.map(l=>l.state))].sort();
+  const ACTIVE = LEADS.filter(isActionable);
+  const states = [...new Set(ACTIVE.map(l=>l.state))].sort();
   const stSel = document.getElementById('filterState');
   stSel.innerHTML = '<option value="">All States</option>' + states.map(s=>`<option value="${s}">${STATE_NAMES[s]||s}</option>`).join('');
 
-  const sources = [...new Set(LEADS.map(l => l.source).filter(Boolean))].sort();
+  const sources = [...new Set(ACTIVE.map(l => l.source).filter(Boolean))].sort();
   const srcSel = document.getElementById('filterSource');
   srcSel.innerHTML = '<option value="">All Sources</option>' + sources.map(s=>`<option value="${s}">${s}</option>`).join('');
 
@@ -543,15 +551,16 @@ function buildFilters() {
 }
 
 function updateCityFilter() {
-  const pool = filterState ? LEADS.filter(l=>l.state===filterState) : LEADS;
+  const base = LEADS.filter(isActionable);
+  const pool = filterState ? base.filter(l=>l.state===filterState) : base;
   const cities = [...new Set(pool.map(l=>l.city))].sort();
   const cSel = document.getElementById('filterCity');
   cSel.innerHTML = '<option value="">All Cities</option>' + cities.map(c=>`<option value="${c}">${c}</option>`).join('');
 }
 
 function buildTierPills() {
-  const tiers = ['','HOT','WARM','WATCH','PASS','PASS (no data)'];
-  const labels = ['All','HOT','WARM','WATCH','PASS','NO DATA'];
+  const tiers = ['','HOT','WARM','WATCH'];
+  const labels = ['All','HOT','WARM','WATCH'];
   document.getElementById('tierPills').innerHTML = tiers.map((t,i) => {
     const cls = filterTier===t ? (t==='HOT'?'active-hot':t==='WARM'?'active-warm':['WATCH','WATCH*'].includes(t)?'active-watch':'active') : '';
     return `<div class="tier-pill ${cls}" data-tier="${t}">${labels[i]}</div>`;
@@ -700,7 +709,8 @@ if (SHEET_CSV_URL.includes('PASTE_YOUR_PUBLISHED_ID_HERE')) {
       const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
       if (parsed.data && parsed.data.length > 0) {
         LEADS = parsed.data.map((row, i) => { const r = parseSheetRow(row); r._rowIndex = i + 2; return r; }).filter(r => r.name && r.name.trim());
-        showStatus('LIVE — ' + LEADS.length + ' leads from Google Sheets', '#1A3320');
+        const actionableCount = LEADS.filter(isActionable).length;
+        showStatus('LIVE — ' + actionableCount + ' actionable (' + LEADS.length + ' total) from Google Sheets', '#1A3320');
       } else {
         LEADS = FALLBACK_LEADS;
         showStatus('Sheet empty — using snapshot', '#2A2A2A');
