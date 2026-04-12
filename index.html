@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oasis CRE | Pre-Stress Lead Dashboard</title>
+<title>Oasis CRE Advisors | Deal Pipeline</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap');
 
@@ -17,7 +17,94 @@
     line-height: 1.4;
   }
 
+  /* ── Login Overlay ── */
+  #loginOverlay {
+    position: fixed;
+    inset: 0;
+    background: #0D0D0D;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #loginOverlay.hidden { display: none; }
+  .login-box {
+    background: #1A1A1A;
+    border: 1px solid #2A2A2A;
+    border-radius: 16px;
+    padding: 48px 52px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+  }
+  .login-box .login-brand {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #ADFF2F;
+    margin-bottom: 20px;
+  }
+  .login-box h2 {
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+  .login-box .login-sub {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 32px;
+  }
+  .login-box input[type="password"] {
+    width: 100%;
+    background: #0D0D0D;
+    border: 1px solid #2A2A2A;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-family: inherit;
+    font-size: 15px;
+    color: #FFFFFF;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.15s;
+    text-align: center;
+    letter-spacing: 0.2em;
+  }
+  .login-box input[type="password"]:focus { border-color: #ADFF2F; }
+  .login-box input[type="password"].error { border-color: #ff4444; }
+  .login-box button {
+    width: 100%;
+    background: #ADFF2F;
+    color: #0D0D0D;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: opacity 0.15s;
+  }
+  .login-box button:hover { opacity: 0.85; }
+  .login-error {
+    font-size: 12px;
+    color: #ff4444;
+    margin-top: 12px;
+    min-height: 18px;
+  }
+  .login-footer {
+    margin-top: 14px;
+    font-size: 10px;
+    color: #444;
+  }
+
   /* ── Header ── */
+  #appShell { display: none; }
+  #appShell.visible { display: block; }
   .header {
     padding: 40px 48px 24px;
     display: flex;
@@ -38,6 +125,11 @@
     font-size: 14px;
     margin-top: 6px;
   }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
   .brand-tag {
     font-size: 11px;
     font-weight: 500;
@@ -48,6 +140,20 @@
     background: #1A3320;
     border-radius: 20px;
   }
+  .logout-btn {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #555;
+    padding: 6px 14px;
+    background: #1A1A1A;
+    border: 1px solid #2A2A2A;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .logout-btn:hover { color: #fff; border-color: #555; }
 
   /* ── Stat Cards ── */
   .stats-row {
@@ -161,9 +267,32 @@
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
+    z-index: 1;
   }
   thead th:hover { color: #ADFF2F; }
   thead th .sort-arrow { margin-left: 4px; font-size: 9px; }
+
+  /* ── Frozen Property Column ── */
+  thead th.col-property,
+  tbody td.col-property {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #1A1A1A;
+  }
+  tbody td.col-property {
+    background: #111111;
+  }
+  tbody tr:nth-child(even) td.col-property { background: #0D0D0D; }
+  tbody tr:hover td.col-property { background: #1A3320; }
+  thead th.col-property {
+    z-index: 3;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.5);
+  }
+  tbody td.col-property {
+    box-shadow: 2px 0 8px rgba(0,0,0,0.4);
+  }
+
   tbody tr {
     border-bottom: 1px solid #1A1A1A;
     transition: background 0.1s;
@@ -229,6 +358,35 @@
     transition: color 0.15s, border-color 0.15s;
   }
   .prop-link:hover { color: #ADFF2F; border-color: #ADFF2F; }
+
+  /* ── Source Portal Link ── */
+  .portal-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-left: 7px;
+    border-radius: 5px;
+    background: #2A2A2A;
+    color: #888;
+    font-size: 10px;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    vertical-align: middle;
+  }
+  .portal-link:hover { background: #1A3320; color: #ADFF2F; }
+  .portal-link.freddie { background: #1a2033; color: #6699ff; }
+  .portal-link.freddie:hover { background: #223; color: #99bbff; }
+  .portal-link.fannie { background: #1a2a1a; color: #66cc66; }
+  .portal-link.fannie:hover { background: #1a3a1a; color: #99ff99; }
+  .portal-link.cmbs { background: #2a1a00; color: #cc8800; }
+  .portal-link.cmbs:hover { background: #3a2a00; color: #ffbb33; }
+
+  /* ── Calculated Column Values ── */
+  .calc-value { color: #ccc; font-size: 12px; }
+  .calc-value.highlight { color: #ADFF2F; font-weight: 600; }
+  .calc-na { color: #444; font-size: 11px; }
 
   /* ── Executive Summary Cell ── */
   .exec-summary {
@@ -320,12 +478,31 @@
 </head>
 <body>
 
+<!-- ── LOGIN OVERLAY ── -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-brand">Oasis CRE Advisors</div>
+    <h2>Deal Pipeline</h2>
+    <div class="login-sub">Internal access only. Enter your password to continue.</div>
+    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    <button onclick="attemptLogin()">Access Dashboard →</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-footer">Confidential — Not for distribution</div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="appShell">
+
 <div class="header">
   <div>
     <h1>Pre-Stress <span>Lead Dashboard</span></h1>
     <div class="subtitle">CMBS Distressed Deal Pipeline &mdash; Southeast US Multifamily</div>
   </div>
-  <div class="brand-tag">Oasis CRE Advisors</div>
+  <div class="header-right">
+    <div class="brand-tag">Oasis CRE Advisors</div>
+    <div class="logout-btn" onclick="logout()">Log out</div>
+  </div>
 </div>
 
 <div class="stats-row" id="statsRow"></div>
@@ -359,7 +536,7 @@
   <table>
     <thead>
       <tr>
-        <th data-sort="name">Property <span class="sort-arrow"></span></th>
+        <th class="col-property" data-sort="name">Property <span class="sort-arrow"></span></th>
         <th data-sort="city">City <span class="sort-arrow"></span></th>
         <th data-sort="state">State <span class="sort-arrow"></span></th>
         <th data-sort="source">Source <span class="sort-arrow"></span></th>
@@ -369,6 +546,8 @@
         <th data-sort="dscr">DSCR <span class="sort-arrow"></span></th>
         <th data-sort="occupancy">Occ % <span class="sort-arrow"></span></th>
         <th data-sort="balance">Balance <span class="sort-arrow"></span></th>
+        <th data-sort="loanBasisPerUnit">Loan $/Unit <span class="sort-arrow"></span></th>
+        <th data-sort="avgRent">Avg Rent <span class="sort-arrow"></span></th>
         <th data-sort="maturity">Maturity <span class="sort-arrow"></span></th>
         <th data-sort="lender">Lender <span class="sort-arrow"></span></th>
         <th data-sort="servicer">Servicer <span class="sort-arrow"></span></th>
@@ -381,16 +560,97 @@
 </div>
 
 <div class="footer">
-  <span>Page 1</span>
-  <span class="brand">Oasis CRE Advisors</span>
+  <span>Oasis CRE Advisors &mdash; Confidential</span>
+  <span class="brand">oasiscreadvisors.com</span>
 </div>
+
+</div><!-- /appShell -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-// ── GOOGLE SHEETS CONFIG ──
-// After you Publish to Web (see instructions), paste your CSV link here:
+
+// ─────────────────────────────────────────────
+// CONFIG — change password here
+// ─────────────────────────────────────────────
+const DASHBOARD_PASSWORD = 'oasis2024';
+
+// ─────────────────────────────────────────────
+// LOGIN
+// ─────────────────────────────────────────────
+function checkSession() {
+  return sessionStorage.getItem('oasis_auth') === DASHBOARD_PASSWORD;
+}
+
+function attemptLogin() {
+  const val = document.getElementById('loginPassword').value;
+  const input = document.getElementById('loginPassword');
+  const errEl = document.getElementById('loginError');
+  if (val === DASHBOARD_PASSWORD) {
+    sessionStorage.setItem('oasis_auth', val);
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('appShell').classList.add('visible');
+    loadDashboard();
+  } else {
+    input.classList.add('error');
+    errEl.textContent = 'Incorrect password. Try again.';
+    setTimeout(() => { input.classList.remove('error'); errEl.textContent = ''; }, 2500);
+    input.value = '';
+    input.focus();
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('oasis_auth');
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('appShell').classList.remove('visible');
+  document.getElementById('loginPassword').value = '';
+}
+
+// Allow Enter key on login
+document.getElementById('loginPassword').addEventListener('keydown', e => {
+  if (e.key === 'Enter') attemptLogin();
+});
+
+// Auto-bypass if session still active
+if (checkSession()) {
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('appShell').classList.add('visible');
+}
+
+// ─────────────────────────────────────────────
+// GOOGLE SHEETS CONFIG
+// ─────────────────────────────────────────────
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRUs1ua1i9_IvnJQ_lWet1puckH_Gaf49gW3J1kHuUs-9xcP4tuzojtS9pUxdgPSOr9T88A9SLpdmT/pub?gid=0&single=true&output=csv';
 
+// ─────────────────────────────────────────────
+// PORTAL LINK BUILDER
+// Returns the original deal page URL based on source
+// ─────────────────────────────────────────────
+function getPortalLink(l) {
+  const src = (l.source || '').toLowerCase();
+  const tid = l.transactionId;
+  const loan = l.loanNumber;
+  const trust = l.cmbsTrust;
+
+  if (src.includes('freddie')) {
+    if (tid) return { url: `https://mf.freddiemac.com/docs/deal/${tid}`, cls: 'freddie', label: 'FM' };
+    return { url: 'https://freddiemac.com/mf/investors', cls: 'freddie', label: 'FM' };
+  }
+  if (src.includes('fannie') || src.includes('dus')) {
+    if (tid) return { url: `https://mfdusdisclose.fanniemae.com/#/transaction/${tid}`, cls: 'fannie', label: 'FN' };
+    return { url: 'https://mfdusdisclose.fanniemae.com', cls: 'fannie', label: 'FN' };
+  }
+  if (src.includes('cmbs')) {
+    if (loan) return { url: `https://www.cmbs.com/loans/${loan}`, cls: 'cmbs', label: 'CB' };
+    if (trust) return { url: `https://www.cmbs.com/deals/${encodeURIComponent(trust)}`, cls: 'cmbs', label: 'CB' };
+    return { url: 'https://www.cmbs.com', cls: 'cmbs', label: 'CB' };
+  }
+  return null;
+}
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
 function firstValue(row, keys) {
   for (const key of keys) {
     if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
@@ -413,105 +673,128 @@ function parseIntSafe(value) {
   return Number.isFinite(n) ? n : null;
 }
 
-// Supports BOTH normalized schema and legacy sheet headers
+// ─────────────────────────────────────────────
+// SCHEMA PARSER
+// ─────────────────────────────────────────────
 function parseSheetRow(row) {
   const out = {
-    name: firstValue(row, ['property_name', 'Property Name', 'name']),
-    city: firstValue(row, ['city', 'City']),
-    state: firstValue(row, ['state', 'State']),
-    source: firstValue(row, ['source', 'Data Source', 'Source']),
-    units: firstValue(row, ['units', 'Units']),
-    dscr: firstValue(row, ['dscr', 'DSCR']),
-    occupancy: firstValue(row, ['occupancy', 'Occupancy']),
-    balance: firstValue(row, ['loan_balance', 'Loan Balance', 'balance']),
-    maturity: firstValue(row, ['maturity_date', 'Maturity Date', 'maturity']),
-    lender: firstValue(row, ['lender', 'Lender']),
-    servicer: firstValue(row, ['servicer', 'Servicer']),
-    executiveSummary: firstValue(row, ['executiveSummary', 'Executive Summary', 'executive_summary']),
-    acquisitionAngle: firstValue(row, ['acquisitionAngle', 'Acquisition Angle', 'acquisition_angle']),
-    distressSignals: firstValue(row, ['distressSignals', 'Distress Signals', 'distress_signals', 'signals']),
-    priorityTier: firstValue(row, ['priorityTier', 'Priority Tier', 'priority_tier', 'tier']),
-    adjustedScore: firstValue(row, ['adjustedScore', 'Adjusted Score', 'adjusted_score', 'score']),
+    name:              firstValue(row, ['property_name', 'Property Name', 'name']),
+    city:              firstValue(row, ['city', 'City']),
+    state:             firstValue(row, ['state', 'State']),
+    source:            firstValue(row, ['source', 'Data Source', 'Source']),
+    units:             firstValue(row, ['units', 'Units']),
+    dscr:              firstValue(row, ['dscr', 'DSCR']),
+    occupancy:         firstValue(row, ['occupancy', 'Occupancy']),
+    balance:           firstValue(row, ['loan_balance', 'Loan Balance', 'balance']),
+    maturity:          firstValue(row, ['maturity_date', 'Maturity Date', 'maturity']),
+    lender:            firstValue(row, ['lender', 'Lender']),
+    servicer:          firstValue(row, ['servicer', 'Servicer']),
+    avgRent:           firstValue(row, ['avg_rent', 'Avg Rent', 'Average Rent', 'Monthly Rent', 'monthly_rent']),
+    executiveSummary:  firstValue(row, ['executiveSummary', 'Executive Summary', 'executive_summary']),
+    acquisitionAngle:  firstValue(row, ['acquisitionAngle', 'Acquisition Angle', 'acquisition_angle']),
+    distressSignals:   firstValue(row, ['distressSignals', 'Distress Signals', 'distress_signals', 'signals']),
+    priorityTier:      firstValue(row, ['priorityTier', 'Priority Tier', 'priority_tier', 'tier']),
+    adjustedScore:     firstValue(row, ['adjustedScore', 'Adjusted Score', 'adjusted_score', 'score']),
     baseDistressScore: firstValue(row, ['baseDistressScore', 'Base Distress Score', 'base_distress_score']),
-    scoreAdjustment: firstValue(row, ['scoreAdjustment', 'Score Adjustment', 'score_adjustment']),
-    dataQualityFlag: firstValue(row, ['dataQualityFlag', 'Data Quality Flag', 'data_quality_flag']),
-    status: firstValue(row, ['status', 'Status']),
-    lastUpdated: firstValue(row, ['lastUpdated', 'Last Updated', 'last_updated']),
-    address: firstValue(row, ['address', 'Property Address', 'Address']),
-    county: firstValue(row, ['county', 'County']),
-    borrower: firstValue(row, ['borrower', 'Borrower Entity', 'Borrower']),
-    rateType: firstValue(row, ['rate_type', 'rateType', 'Rate Type']),
-    cmbsTrust: firstValue(row, ['cmbsTrust', 'CMBS Trust']),
-    reportPeriod: firstValue(row, ['report_period', 'Report Period']),
-    loanNumber: firstValue(row, ['loan_number', 'Loan Number']),
-    transactionId: firstValue(row, ['transaction_id', 'Transaction ID']),
+    scoreAdjustment:   firstValue(row, ['scoreAdjustment', 'Score Adjustment', 'score_adjustment']),
+    dataQualityFlag:   firstValue(row, ['dataQualityFlag', 'Data Quality Flag', 'data_quality_flag']),
+    status:            firstValue(row, ['status', 'Status']),
+    lastUpdated:       firstValue(row, ['lastUpdated', 'Last Updated', 'last_updated']),
+    address:           firstValue(row, ['address', 'Property Address', 'Address']),
+    county:            firstValue(row, ['county', 'County']),
+    borrower:          firstValue(row, ['borrower', 'Borrower Entity', 'Borrower']),
+    rateType:          firstValue(row, ['rate_type', 'rateType', 'Rate Type']),
+    cmbsTrust:         firstValue(row, ['cmbsTrust', 'CMBS Trust']),
+    reportPeriod:      firstValue(row, ['report_period', 'Report Period']),
+    loanNumber:        firstValue(row, ['loan_number', 'Loan Number']),
+    transactionId:     firstValue(row, ['transaction_id', 'Transaction ID']),
   };
 
-  out.dscr = parseNum(out.dscr);
-  out.occupancy = parseNum(out.occupancy);
-  out.balance = parseNum(out.balance) || 0;
-  out.adjustedScore = parseIntSafe(out.adjustedScore) || 0;
+  out.dscr              = parseNum(out.dscr);
+  out.occupancy         = parseNum(out.occupancy);
+  out.balance           = parseNum(out.balance) || 0;
+  out.adjustedScore     = parseIntSafe(out.adjustedScore) || 0;
   out.baseDistressScore = parseIntSafe(out.baseDistressScore);
-  out.scoreAdjustment = parseIntSafe(out.scoreAdjustment) || 0;
-  out.units = out.units || '';
-  out.priorityTier = out.priorityTier || 'PASS (no data)';
-  out.distressSignals = out.distressSignals || '';
-  out.executiveSummary = out.executiveSummary || '';
-  out.lender = out.lender || '';
-  out.servicer = out.servicer || '';
-  out.source = out.source || 'Unknown';
-  out.city = out.city || '';
-  out.state = out.state || '';
-  out.name = out.name || '';
+  out.scoreAdjustment   = parseIntSafe(out.scoreAdjustment) || 0;
+  out.avgRent           = parseNum(out.avgRent);
+  out.units             = out.units || '';
+  out.priorityTier      = out.priorityTier || 'PASS (no data)';
+  out.distressSignals   = out.distressSignals || '';
+  out.executiveSummary  = out.executiveSummary || '';
+  out.lender            = out.lender || '';
+  out.servicer          = out.servicer || '';
+  out.source            = out.source || 'Unknown';
+  out.city              = out.city || '';
+  out.state             = out.state || '';
+  out.name              = out.name || '';
+
+  // Calculated: Loan Basis Per Unit
+  const unitsNum = parseInt(out.units, 10);
+  out.loanBasisPerUnit = (out.balance && unitsNum > 0) ? Math.round(out.balance / unitsNum) : null;
+
   return out;
 }
 
-// ── DATA VARIABLE (set by live fetch or fallback) ──
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
 let LEADS = [];
 
-// ── FALLBACK DATA (legacy snapshot retained; normalized on load) ──
-const FALLBACK_LEADS = [{"name": "The Hill", "city": "Columbus", "state": "GA", "units": "258", "dscr": null, "occupancy": 58.14, "paymentStatus": 2, "balance": 4100000.0, "maturity": "01-06-2029", "score": 100, "tier": "HOT", "signals": "Payment Status: 2; Special Servicer; Workout; Low Occupancy", "lender": "Argentic Real Estate Finance 2 LLC", "servicer": "Berkadia", "specialServicer": true, "workout": true}, {"name": "Residence at Patriot Place", "city": "Columbus", "state": "GA", "units": "257", "dscr": null, "occupancy": null, "paymentStatus": 3, "balance": 33000000.0, "maturity": "12-06-2028", "score": 100, "tier": "HOT", "signals": "Payment Status: 3; Special Servicer; Workout", "lender": "UBS AG", "servicer": "Midland Loan Services", "specialServicer": true, "workout": true}, {"name": "THE WYMORE 360", "city": "Altamonte Springs", "state": "FL", "units": "200", "dscr": 0.4983, "occupancy": 81.0, "paymentStatus": 0, "balance": 33000000.0, "maturity": "11-06-2029", "score": 40, "tier": "WATCH", "signals": "Low DSCR", "lender": "DBR Investments Co. Limited", "servicer": "Wells Fargo Bank, NA", "specialServicer": false, "workout": false}];
+const FALLBACK_LEADS = [
+  {"name": "The Hill", "city": "Columbus", "state": "GA", "units": "258", "dscr": null, "occupancy": 58.14, "paymentStatus": 2, "balance": 4100000.0, "maturity": "01-06-2029", "score": 100, "tier": "HOT", "signals": "Payment Status: 2; Special Servicer; Workout; Low Occupancy", "lender": "Argentic Real Estate Finance 2 LLC", "servicer": "Berkadia", "specialServicer": true, "workout": true},
+  {"name": "Residence at Patriot Place", "city": "Columbus", "state": "GA", "units": "257", "dscr": null, "occupancy": null, "paymentStatus": 3, "balance": 33000000.0, "maturity": "12-06-2028", "score": 100, "tier": "HOT", "signals": "Payment Status: 3; Special Servicer; Workout", "lender": "UBS AG", "servicer": "Midland Loan Services", "specialServicer": true, "workout": true},
+  {"name": "THE WYMORE 360", "city": "Altamonte Springs", "state": "FL", "units": "200", "dscr": 0.4983, "occupancy": 81.0, "paymentStatus": 0, "balance": 33000000.0, "maturity": "11-06-2029", "score": 40, "tier": "WATCH", "signals": "Low DSCR", "lender": "DBR Investments Co. Limited", "servicer": "Wells Fargo Bank, NA", "specialServicer": false, "workout": false}
+];
 
 function normalizeFallbackLead(l) {
-  return {
-    name: l.name || '',
-    city: l.city || '',
-    state: l.state || '',
-    source: l.source || 'CMBS',
-    units: l.units || '',
-    dscr: l.dscr,
-    occupancy: l.occupancy,
-    balance: l.balance || 0,
-    maturity: l.maturity || '',
-    lender: l.lender || '',
-    servicer: l.servicer || '',
-    executiveSummary: l.executiveSummary || l.executive_summary || '',
-    acquisitionAngle: l.acquisitionAngle || '',
-    distressSignals: l.distressSignals || l.distress_signals || l.signals || '',
-    priorityTier: l.priorityTier || l.priority_tier || l.tier || 'PASS (no data)',
-    adjustedScore: l.adjustedScore || l.adjusted_score || l.score || 0,
+  const out = {
+    name:              l.name || '',
+    city:              l.city || '',
+    state:             l.state || '',
+    source:            l.source || 'CMBS',
+    units:             l.units || '',
+    dscr:              l.dscr,
+    occupancy:         l.occupancy,
+    balance:           l.balance || 0,
+    maturity:          l.maturity || '',
+    lender:            l.lender || '',
+    servicer:          l.servicer || '',
+    avgRent:           l.avgRent || null,
+    executiveSummary:  l.executiveSummary || l.executive_summary || '',
+    acquisitionAngle:  l.acquisitionAngle || '',
+    distressSignals:   l.distressSignals || l.distress_signals || l.signals || '',
+    priorityTier:      l.priorityTier || l.priority_tier || l.tier || 'PASS (no data)',
+    adjustedScore:     l.adjustedScore || l.adjusted_score || l.score || 0,
     baseDistressScore: l.baseDistressScore || null,
-    scoreAdjustment: l.scoreAdjustment || 0,
-    dataQualityFlag: l.dataQualityFlag || '',
-    status: l.status || 'New',
-    lastUpdated: l.lastUpdated || '',
-    _rowIndex: l._rowIndex || ''
+    scoreAdjustment:   l.scoreAdjustment || 0,
+    dataQualityFlag:   l.dataQualityFlag || '',
+    status:            l.status || 'New',
+    lastUpdated:       l.lastUpdated || '',
+    transactionId:     l.transactionId || l.transaction_id || '',
+    loanNumber:        l.loanNumber || l.loan_number || '',
+    cmbsTrust:         l.cmbsTrust || '',
+    _rowIndex:         l._rowIndex || ''
   };
+  const unitsNum = parseInt(out.units, 10);
+  out.loanBasisPerUnit = (out.balance && unitsNum > 0) ? Math.round(out.balance / unitsNum) : null;
+  return out;
 }
 
 const STATE_NAMES = {FL:'Florida',GA:'Georgia',TN:'Tennessee',NC:'North Carolina',SC:'South Carolina',AL:'Alabama'};
-const TIER_ORDER = ['HOT','WARM','WATCH','WATCH*','REVIEW','PASS','PASS (no data)'];
+const TIER_ORDER  = ['HOT','WARM','WATCH','WATCH*','REVIEW','PASS','PASS (no data)'];
 const TIER_COLORS = {'HOT':'#ff4444','WARM':'#ff8800','WATCH':'#ADFF2F','WATCH*':'#88cc00','REVIEW':'#ffcc00','PASS':'#2A2A2A','PASS (no data)':'#1A1A1A'};
 
-let filterState = '';
-let filterCity = '';
+let filterState  = '';
+let filterCity   = '';
 let filterSource = '';
 let filterSearch = '';
-let filterTier = '';
-let sortCol = 'adjustedScore';
-let sortDir = -1;
+let filterTier   = '';
+let sortCol      = 'adjustedScore';
+let sortDir      = -1;
 
-// ── INIT ──
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
 function init() {
   buildStats();
   buildStateGrid();
@@ -521,7 +804,6 @@ function init() {
   bindEvents();
 }
 
-// PASS tier is hidden globally — too much noise
 function isActionable(l) {
   return l.priorityTier && !l.priorityTier.startsWith('PASS');
 }
@@ -529,8 +811,8 @@ function isActionable(l) {
 function filtered() {
   return LEADS.filter(l => {
     if (!isActionable(l)) return false;
-    if (filterState && l.state !== filterState) return false;
-    if (filterCity && l.city !== filterCity) return false;
+    if (filterState  && l.state  !== filterState)  return false;
+    if (filterCity   && l.city   !== filterCity)   return false;
     if (filterSource && l.source !== filterSource) return false;
     if (filterTier) {
       if (filterTier === 'WATCH') {
@@ -544,13 +826,15 @@ function filtered() {
   });
 }
 
-// ── STATS ──
+// ─────────────────────────────────────────────
+// STATS
+// ─────────────────────────────────────────────
 function buildStats() {
-  const ACTIVE = LEADS.filter(isActionable);
-  const total = ACTIVE.length;
-  const hot = ACTIVE.filter(l => l.priorityTier === 'HOT').length;
-  const warm = ACTIVE.filter(l => l.priorityTier === 'WARM').length;
-  const watch = ACTIVE.filter(l => ['WATCH','WATCH*'].includes(l.priorityTier)).length;
+  const ACTIVE   = LEADS.filter(isActionable);
+  const total    = ACTIVE.length;
+  const hot      = ACTIVE.filter(l => l.priorityTier === 'HOT').length;
+  const warm     = ACTIVE.filter(l => l.priorityTier === 'WARM').length;
+  const watch    = ACTIVE.filter(l => ['WATCH','WATCH*'].includes(l.priorityTier)).length;
   const totalBal = ACTIVE.reduce((s,l) => s + (l.balance || 0), 0);
 
   document.getElementById('statsRow').innerHTML = `
@@ -564,7 +848,9 @@ function buildStats() {
   `;
 }
 
-// ── STATE GRID ──
+// ─────────────────────────────────────────────
+// STATE GRID
+// ─────────────────────────────────────────────
 function buildStateGrid() {
   const states = {};
   LEADS.filter(isActionable).forEach(l => {
@@ -577,12 +863,12 @@ function buildStateGrid() {
   grid.innerHTML = Object.entries(states)
     .sort((a,b) => b[1].total - a[1].total)
     .map(([st, info]) => {
-      const hotW = (info.tiers['HOT']||0) / info.total * 100;
-      const warmW = (info.tiers['WARM']||0) / info.total * 100;
+      const hotW   = (info.tiers['HOT']||0) / info.total * 100;
+      const warmW  = (info.tiers['WARM']||0) / info.total * 100;
       const watchW = ((info.tiers['WATCH']||0) + (info.tiers['WATCH*']||0)) / info.total * 100;
-      const passW = 100 - hotW - warmW - watchW;
-      const hotCount = info.tiers['HOT']||0;
-      const warmCount = info.tiers['WARM']||0;
+      const passW  = 100 - hotW - warmW - watchW;
+      const hotCount   = info.tiers['HOT']||0;
+      const warmCount  = info.tiers['WARM']||0;
       const watchCount = (info.tiers['WATCH']||0) + (info.tiers['WATCH*']||0);
       return `<div class="state-card${filterState===st?' selected':''}" data-state="${st}">
         <div class="state-name">${STATE_NAMES[st]||st}</div>
@@ -597,30 +883,32 @@ function buildStateGrid() {
     }).join('');
 }
 
-// ── FILTERS ──
+// ─────────────────────────────────────────────
+// FILTERS
+// ─────────────────────────────────────────────
 function buildFilters() {
-  const ACTIVE = LEADS.filter(isActionable);
-  const states = [...new Set(ACTIVE.map(l=>l.state).filter(Boolean))].sort();
-  const stSel = document.getElementById('filterState');
+  const ACTIVE  = LEADS.filter(isActionable);
+  const states  = [...new Set(ACTIVE.map(l=>l.state).filter(Boolean))].sort();
+  const stSel   = document.getElementById('filterState');
   stSel.innerHTML = '<option value="">All States</option>' + states.map(s=>`<option value="${s}">${STATE_NAMES[s]||s}</option>`).join('');
 
   const sources = [...new Set(ACTIVE.map(l => l.source).filter(Boolean))].sort();
-  const srcSel = document.getElementById('filterSource');
+  const srcSel  = document.getElementById('filterSource');
   srcSel.innerHTML = '<option value="">All Sources</option>' + sources.map(s=>`<option value="${s}">${s}</option>`).join('');
 
   updateCityFilter();
 }
 
 function updateCityFilter() {
-  const base = LEADS.filter(isActionable);
-  const pool = filterState ? base.filter(l=>l.state===filterState) : base;
+  const base   = LEADS.filter(isActionable);
+  const pool   = filterState ? base.filter(l=>l.state===filterState) : base;
   const cities = [...new Set(pool.map(l=>l.city).filter(Boolean))].sort();
-  const cSel = document.getElementById('filterCity');
+  const cSel   = document.getElementById('filterCity');
   cSel.innerHTML = '<option value="">All Cities</option>' + cities.map(c=>`<option value="${c}">${c}</option>`).join('');
 }
 
 function buildTierPills() {
-  const tiers = ['','HOT','WARM','WATCH'];
+  const tiers  = ['','HOT','WARM','WATCH'];
   const labels = ['All','HOT','WARM','WATCH'];
   document.getElementById('tierPills').innerHTML = tiers.map((t,i) => {
     const cls = filterTier===t ? (t==='HOT'?'active-hot':t==='WARM'?'active-warm':t==='WATCH'?'active-watch':'active') : '';
@@ -628,48 +916,72 @@ function buildTierPills() {
   }).join('');
 }
 
-// ── TABLE ──
+// ─────────────────────────────────────────────
+// TABLE
+// ─────────────────────────────────────────────
 function renderTable() {
   const data = filtered().sort((a,b) => {
     let va = a[sortCol], vb = b[sortCol];
     if (sortCol === 'priorityTier') { va = TIER_ORDER.indexOf(va); vb = TIER_ORDER.indexOf(vb); }
-    if (['units','balance','adjustedScore'].includes(sortCol)) { va = Number(va)||0; vb = Number(vb)||0; }
+    if (['units','balance','adjustedScore','loanBasisPerUnit','avgRent'].includes(sortCol)) { va = Number(va)||0; vb = Number(vb)||0; }
     if (['dscr','occupancy'].includes(sortCol)) { va = va===null?-1:Number(va); vb = vb===null?-1:Number(vb); }
     if (['lender','servicer','source','name','city','state','maturity'].includes(sortCol)) { va = (va||'').toString().toLowerCase(); vb = (vb||'').toString().toLowerCase(); }
     if (va < vb) return -1 * sortDir;
-    if (va > vb) return 1 * sortDir;
+    if (va > vb) return  1 * sortDir;
     return 0;
   });
 
   document.getElementById('tableBody').innerHTML = data.map(l => {
-    const tierLabel = l.priorityTier || 'PASS';
-    const tierClass = tierLabel.startsWith('PASS') ? 'PASS' : tierLabel.replace(/[^A-Z]/g,'');
-    const score = l.adjustedScore || 0;
+    const tierLabel  = l.priorityTier || 'PASS';
+    const tierClass  = tierLabel.startsWith('PASS') ? 'PASS' : tierLabel.replace(/[^A-Z]/g,'');
+    const score      = l.adjustedScore || 0;
     const scoreColor = score >= 85 ? '#ff4444' : score >= 60 ? '#ff8800' : score >= 30 ? '#ADFF2F' : '#2A2A2A';
-    const scorePct = Math.min(score, 100);
+    const scorePct   = Math.min(score, 100);
+
     const signals = (l.distressSignals||'').split(/\s*\|\s*|\s*;\s*/).filter(Boolean).map(s => {
-      const test = s.toLowerCase();
+      const test   = s.toLowerCase();
       const isDist = test.includes('special servicer') || test.includes('workout') || test.includes('delinquent') || test.includes('foreclosure') || test.includes('dscr <') || test.includes('occupancy 0') || test.includes('matured');
       return `<span class="signal-tag${isDist?' distress':''}">${s}</span>`;
     }).join('');
-    const dscrDisplay = l.dscr !== null && l.dscr !== '' ? Number(l.dscr).toFixed(2) : '<span style="color:#555">—</span>';
-    const occDisplay = l.occupancy !== null && l.occupancy !== '' ? Number(l.occupancy).toFixed(1) + '%' : '<span style="color:#555">—</span>';
-    const balDisplay = l.balance ? '$' + (l.balance >= 1e6 ? (l.balance/1e6).toFixed(1)+'M' : (l.balance/1e3).toFixed(0)+'K') : '—';
 
-    const sheetId = '1pKXelpQSWMOA9TneczajTSaDP1NqwwF14KtMmVudsTU';
-    const rowNum = l._rowIndex || '';
+    const dscrDisplay = l.dscr !== null && l.dscr !== '' ? Number(l.dscr).toFixed(2) : '<span style="color:#555">—</span>';
+    const occDisplay  = l.occupancy !== null && l.occupancy !== '' ? Number(l.occupancy).toFixed(1) + '%' : '<span style="color:#555">—</span>';
+    const balDisplay  = l.balance ? '$' + (l.balance >= 1e6 ? (l.balance/1e6).toFixed(1)+'M' : (l.balance/1e3).toFixed(0)+'K') : '—';
+
+    // Loan Basis Per Unit
+    const lbpuDisplay = l.loanBasisPerUnit
+      ? `<span class="calc-value">$${l.loanBasisPerUnit.toLocaleString()}</span>`
+      : `<span class="calc-na">—</span>`;
+
+    // Average Rent
+    const rentDisplay = l.avgRent
+      ? `<span class="calc-value highlight">$${Math.round(l.avgRent).toLocaleString()}</span>`
+      : `<span class="calc-na" title="Add avg_rent column to sheet or connect RentCast">—</span>`;
+
+    // Google Sheet row link
+    const sheetId   = '1pKXelpQSWMOA9TneczajTSaDP1NqwwF14KtMmVudsTU';
+    const rowNum    = l._rowIndex || '';
     const sheetLink = rowNum ? `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=0&range=A${rowNum}` : '';
-    const propCell = sheetLink
+
+    // Property name cell (frozen column)
+    const nameEl = sheetLink
       ? `<a class="prop-link" href="${sheetLink}" target="_blank" title="Open in Google Sheet → Row ${rowNum}">${l.name}</a>`
       : l.name;
 
+    // Source portal link (Freddie / Fannie / CMBS)
+    const portal = getPortalLink(l);
+    const portalEl = portal
+      ? `<a class="portal-link ${portal.cls}" href="${portal.url}" target="_blank" title="Open original deal page">${portal.label}</a>`
+      : '';
+
+    // Executive summary
     const execRaw = (l.executiveSummary || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     const execCell = execRaw
       ? `<div class="exec-summary" onclick="this.classList.toggle('expanded')"><div class="exec-summary-short">${execRaw}</div><span class="exec-toggle">more ▾</span></div>`
       : '<span style="color:#555">—</span>';
 
     return `<tr>
-      <td style="font-weight:700">${propCell}</td>
+      <td class="col-property" style="font-weight:700">${nameEl}${portalEl}</td>
       <td>${l.city || '—'}</td>
       <td>${l.state || '—'}</td>
       <td>${l.source || '—'}</td>
@@ -679,6 +991,8 @@ function renderTable() {
       <td>${dscrDisplay}</td>
       <td>${occDisplay}</td>
       <td>${balDisplay}</td>
+      <td>${lbpuDisplay}</td>
+      <td>${rentDisplay}</td>
       <td>${l.maturity||'—'}</td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${l.lender||''}">${l.lender||'—'}</td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${l.servicer||''}">${l.servicer||'—'}</td>
@@ -688,17 +1002,19 @@ function renderTable() {
   }).join('');
 
   document.querySelectorAll('thead th').forEach(th => {
-    const col = th.dataset.sort;
+    const col   = th.dataset.sort;
     const arrow = th.querySelector('.sort-arrow');
     if (arrow) arrow.textContent = col === sortCol ? (sortDir === 1 ? '▲' : '▼') : '';
   });
 }
 
-// ── EVENTS ──
+// ─────────────────────────────────────────────
+// EVENTS
+// ─────────────────────────────────────────────
 function bindEvents() {
   document.getElementById('filterState').addEventListener('change', e => {
     filterState = e.target.value;
-    filterCity = '';
+    filterCity  = '';
     updateCityFilter();
     buildStateGrid();
     renderTable();
@@ -725,10 +1041,10 @@ function bindEvents() {
   document.getElementById('stateGrid').addEventListener('click', e => {
     const card = e.target.closest('.state-card');
     if (!card) return;
-    const st = card.dataset.state;
+    const st   = card.dataset.state;
     filterState = filterState === st ? '' : st;
     document.getElementById('filterState').value = filterState;
-    filterCity = '';
+    filterCity  = '';
     updateCityFilter();
     buildStateGrid();
     renderTable();
@@ -743,9 +1059,11 @@ function bindEvents() {
   });
 }
 
-// ── LIVE FETCH OR FALLBACK ──
+// ─────────────────────────────────────────────
+// STATUS INDICATOR
+// ─────────────────────────────────────────────
 const statusEl = document.createElement('div');
-statusEl.style.cssText = 'position:fixed;top:12px;right:12px;z-index:999;font-size:11px;font-family:Inter,sans-serif;padding:6px 14px;border-radius:8px;';
+statusEl.style.cssText = 'position:fixed;top:12px;right:12px;z-index:9000;font-size:11px;font-family:Inter,sans-serif;padding:6px 14px;border-radius:8px;';
 document.body.appendChild(statusEl);
 
 function showStatus(msg, color) {
@@ -755,42 +1073,49 @@ function showStatus(msg, color) {
   setTimeout(() => { statusEl.style.opacity = '0.6'; }, 3000);
 }
 
-if (SHEET_CSV_URL.includes('PASTE_YOUR_PUBLISHED_ID_HERE')) {
-  LEADS = FALLBACK_LEADS.map(normalizeFallbackLead);
-  showStatus('OFFLINE MODE — using snapshot data', '#2A2A2A');
-  statusEl.style.color = '#888';
-  init();
-} else {
-  showStatus('Fetching live data...', '#1A3320');
-  fetch(SHEET_CSV_URL)
-    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
-    .then(csv => {
-      const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
-      if (parsed.data && parsed.data.length > 0) {
-        LEADS = parsed.data
-          .map((row, i) => {
-            const r = parseSheetRow(row);
-            r._rowIndex = i + 2;
-            return r;
-          })
-          .filter(r => r.name && r.name.trim());
-        const actionableCount = LEADS.filter(isActionable).length;
-        showStatus('LIVE — ' + actionableCount + ' actionable (' + LEADS.length + ' total) from Google Sheets', '#1A3320');
-      } else {
+// ─────────────────────────────────────────────
+// LOAD DATA (called after login)
+// ─────────────────────────────────────────────
+function loadDashboard() {
+  if (SHEET_CSV_URL.includes('PASTE_YOUR_PUBLISHED_ID_HERE')) {
+    LEADS = FALLBACK_LEADS.map(normalizeFallbackLead);
+    showStatus('OFFLINE MODE — using snapshot data', '#2A2A2A');
+    statusEl.style.color = '#888';
+    init();
+  } else {
+    showStatus('Fetching live data...', '#1A3320');
+    fetch(SHEET_CSV_URL)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(csv => {
+        const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
+        if (parsed.data && parsed.data.length > 0) {
+          LEADS = parsed.data
+            .map((row, i) => { const r = parseSheetRow(row); r._rowIndex = i + 2; return r; })
+            .filter(r => r.name && r.name.trim());
+          const actionableCount = LEADS.filter(isActionable).length;
+          showStatus('LIVE — ' + actionableCount + ' actionable (' + LEADS.length + ' total)', '#1A3320');
+        } else {
+          LEADS = FALLBACK_LEADS.map(normalizeFallbackLead);
+          showStatus('Sheet empty — using snapshot', '#2A2A2A');
+          statusEl.style.color = '#888';
+        }
+        init();
+      })
+      .catch(err => {
+        console.warn('Live fetch failed, using fallback:', err);
         LEADS = FALLBACK_LEADS.map(normalizeFallbackLead);
-        showStatus('Sheet empty — using snapshot', '#2A2A2A');
-        statusEl.style.color = '#888';
-      }
-      init();
-    })
-    .catch(err => {
-      console.warn('Live fetch failed, using fallback:', err);
-      LEADS = FALLBACK_LEADS.map(normalizeFallbackLead);
-      showStatus('Fetch failed — using snapshot data', '#3a1111');
-      statusEl.style.color = '#ff6666';
-      init();
-    });
+        showStatus('Fetch failed — using snapshot data', '#3a1111');
+        statusEl.style.color = '#ff6666';
+        init();
+      });
+  }
 }
+
+// Auto-load if already authenticated
+if (checkSession()) {
+  loadDashboard();
+}
+
 </script>
 </body>
 </html>
