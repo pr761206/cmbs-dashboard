@@ -5,1399 +5,996 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Oasis CRE Advisors | Deal Pipeline</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    font-family: 'Inter', 'Space Grotesk', Arial, sans-serif;
-    background: #0D0D0D;
-    color: #FFFFFF;
-    min-height: 100vh;
-    line-height: 1.4;
-  }
+:root {
+  --bg:         #0D0D0D;
+  --surface:    #1A1A1A;
+  --border:     #2A2A2A;
+  --accent:     #ADFF2F;
+  --accent-dim: #1A3320;
+  --hot:        #ff4444;
+  --warm:       #ff8800;
+  --text:       #FFFFFF;
+  --muted:      #888888;
+  --faint:      #444444;
+}
 
-  /* ── Login Overlay ── */
-  #loginOverlay {
-    position: fixed;
-    inset: 0;
-    background: #0D0D0D;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-  }
-  #loginOverlay.hidden { display: none; }
-  .login-box {
-    background: #1A1A1A;
-    border: 1px solid #2A2A2A;
-    border-radius: 16px;
-    padding: 48px 52px;
-    width: 100%;
-    max-width: 420px;
-    text-align: center;
-  }
-  .login-box .login-brand {
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #ADFF2F;
-    margin-bottom: 20px;
-  }
-  .login-box h2 {
-    font-size: 26px;
-    font-weight: 900;
-    margin-bottom: 8px;
-    letter-spacing: -0.3px;
-  }
-  .login-box .login-sub {
-    font-size: 13px;
-    color: #666;
-    margin-bottom: 32px;
-  }
-  .login-box input[type="password"] {
-    width: 100%;
-    background: #0D0D0D;
-    border: 1px solid #2A2A2A;
-    border-radius: 10px;
-    padding: 14px 18px;
-    font-family: inherit;
-    font-size: 15px;
-    color: #FFFFFF;
-    outline: none;
-    margin-bottom: 16px;
-    transition: border-color 0.15s;
-    text-align: center;
-    letter-spacing: 0.2em;
-  }
-  .login-box input[type="password"]:focus { border-color: #ADFF2F; }
-  .login-box input[type="password"].error { border-color: #ff4444; }
-  .login-box button {
-    width: 100%;
-    background: #ADFF2F;
-    color: #0D0D0D;
-    border: none;
-    border-radius: 10px;
-    padding: 14px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 800;
-    cursor: pointer;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    transition: opacity 0.15s;
-  }
-  .login-box button:hover { opacity: 0.85; }
-  .login-error {
-    font-size: 12px;
-    color: #ff4444;
-    margin-top: 12px;
-    min-height: 18px;
-  }
-  .login-footer {
-    margin-top: 14px;
-    font-size: 10px;
-    color: #444;
-  }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 13px;
+  line-height: 1.4;
+}
 
-  /* ── Header ── */
-  #appShell { display: none; }
-  #appShell.visible { display: block; }
-  .header {
-    padding: 40px 48px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  .header h1 {
-    font-weight: 900;
-    font-size: 42px;
-    letter-spacing: -0.5px;
-    line-height: 1.1;
-  }
-  .header h1 span { color: #ADFF2F; }
-  .header .subtitle {
-    color: #888888;
-    font-size: 14px;
-    margin-top: 6px;
-  }
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .brand-tag {
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #ADFF2F;
-    padding: 6px 14px;
-    background: #1A3320;
-    border-radius: 20px;
-  }
-  .logout-btn {
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #555;
-    padding: 6px 14px;
-    background: #1A1A1A;
-    border: 1px solid #2A2A2A;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .logout-btn:hover { color: #fff; border-color: #555; }
+/* ─── LOGIN ──────────────────────────────────── */
+#loginOverlay {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+#loginOverlay.hidden { display: none; }
 
-  /* ── Nav Tabs ── */
-  .nav-tabs {
-    display: flex;
-    gap: 10px;
-    padding: 0 48px 10px;
-    flex-wrap: wrap;
-  }
-  .nav-tab {
-    padding: 8px 16px;
-    background: #1A1A1A;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 12px;
-    color: #888;
-    border: 1px solid #2A2A2A;
-    transition: all 0.15s;
-  }
-  .nav-tab:hover { border-color: #ADFF2F; color: #FFFFFF; }
-  .nav-tab.active {
-    background: #ADFF2F;
-    color: #0D0D0D;
-    border-color: #ADFF2F;
-    font-weight: 700;
-  }
+.login-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 48px 52px;
+  width: 100%; max-width: 420px;
+  text-align: center;
+}
+.login-brand {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--accent); margin-bottom: 20px;
+}
+.login-box h2 { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
+.login-sub  { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
 
-  /* ── Stat Cards ── */
-  .stats-row {
-    display: flex;
-    gap: 16px;
-    padding: 16px 48px 8px;
-    flex-wrap: wrap;
-  }
-  .stat-card {
-    background: #1A1A1A;
-    border-radius: 12px;
-    padding: 20px 28px;
-    flex: 1;
-    min-width: 140px;
-  }
-  .stat-card .label {
-    font-size: 10px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #888888;
-    margin-bottom: 6px;
-  }
-  .stat-card .value {
-    font-size: 36px;
-    font-weight: 900;
-    color: #FFFFFF;
-    line-height: 1;
-  }
-  .stat-card .value.accent { color: #ADFF2F; }
-  .stat-card.hot { border-left: 3px solid #ff4444; }
-  .stat-card.warm { border-left: 3px solid #ff8800; }
-  .stat-card.watch { border-left: 3px solid #ADFF2F; }
+.login-box input {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 18px; font-family: inherit; font-size: 15px;
+  color: var(--text); outline: none; margin-bottom: 16px;
+  text-align: center; letter-spacing: 0.2em;
+  transition: border-color 0.15s;
+}
+.login-box input:focus { border-color: var(--accent); }
+.login-box input.err   { border-color: var(--hot); }
 
-  /* ── Filters ── */
-  .filters {
-    display: flex;
-    gap: 12px;
-    padding: 20px 48px 8px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .header, .nav-tabs, .map-section, .filters { position: relative; z-index: 5000; }
-  .nav-tabs, .filters, .filter-group, .filter-group select, .filter-group input, .tier-pills, .tier-pill, .state-grid, .state-card { pointer-events: auto; }
-  .table-wrap { position: relative; z-index: 1; margin-top: 0; }
-  thead th, tbody td.col-property { z-index: 2; }
-  #statsRow, #stateGrid, #tierPills, #filterState, #filterCity, #filterSource, #filterSearch { position: relative; z-index: 5001; }
-  .filter-group label {
-    font-size: 10px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #888888;
-    display: block;
-    margin-bottom: 4px;
-  }
-  .filter-group select, .filter-group input {
-    background: #1A1A1A;
-    border: 1px solid #2A2A2A;
-    color: #FFFFFF;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 13px;
-    min-width: 160px;
-    outline: none;
-  }
-  .filter-group select:focus, .filter-group input:focus {
-    border-color: #ADFF2F;
-  }
-  .tier-pills {
-    display: flex;
-    gap: 8px;
-    align-items: flex-end;
-    padding-top: 16px;
-  }
-  .tier-pill {
-    padding: 7px 16px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    border: 1px solid #2A2A2A;
-    background: #1A1A1A;
-    color: #888888;
-    transition: all 0.15s;
-  }
-  .tier-pill:hover { border-color: #ADFF2F; color: #FFFFFF; }
-  .tier-pill.active { background: #ADFF2F; color: #0D0D0D; border-color: #ADFF2F; }
-  .tier-pill.active-hot { background: #ff4444; color: #FFFFFF; border-color: #ff4444; }
-  .tier-pill.active-warm { background: #ff8800; color: #0D0D0D; border-color: #ff8800; }
-  .tier-pill.active-watch { background: #ADFF2F; color: #0D0D0D; border-color: #ADFF2F; }
+.login-btn {
+  width: 100%; background: var(--accent); color: var(--bg);
+  border: none; border-radius: 10px; padding: 14px;
+  font-family: inherit; font-size: 14px; font-weight: 800;
+  cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em;
+  transition: opacity 0.15s;
+}
+.login-btn:hover { opacity: 0.85; }
+.login-err    { font-size: 12px; color: var(--hot); margin-top: 12px; min-height: 18px; }
+.login-footer { margin-top: 12px; font-size: 10px; color: var(--faint); }
 
-  /* ── Table ── */
-  .table-wrap {
-    padding: 16px 48px 48px;
-    overflow-x: auto;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  thead th {
-    background: #1A1A1A;
-    padding: 11px 10px;
-    text-align: left;
-    font-weight: 700;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #888888;
-    border-bottom: 1px solid #2A2A2A;
-    position: sticky;
-    top: 0;
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-    z-index: 1;
-  }
-  thead th:hover { color: #ADFF2F; }
-  thead th .sort-arrow { margin-left: 4px; font-size: 9px; }
+/* ─── APP ────────────────────────────────────── */
+#app { display: none; }
+#app.visible { display: block; }
 
-  /* ── Frozen Property Column ── */
-  thead th.col-property,
-  tbody td.col-property {
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    background: #1A1A1A;
-  }
-  tbody td.col-property {
-    background: #111111;
-  }
-  tbody tr:nth-child(even) td.col-property { background: #0D0D0D; }
-  tbody tr:hover td.col-property { background: #1A3320; }
-  thead th.col-property {
-    z-index: 3;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.5);
-  }
-  tbody td.col-property {
-    box-shadow: 2px 0 8px rgba(0,0,0,0.4);
-  }
+/* ─── HEADER ─────────────────────────────────── */
+.header {
+  padding: 36px 48px 20px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  flex-wrap: wrap; gap: 16px;
+}
+.header-title { font-size: 38px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.1; }
+.header-title span { color: var(--accent); }
+.header-sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
-  tbody tr {
-    border-bottom: 1px solid #1A1A1A;
-    transition: background 0.1s;
-  }
-  tbody tr:nth-child(odd) { background: #111111; }
-  tbody tr:nth-child(even) { background: #0D0D0D; }
-  tbody tr:hover { background: #1A3320; }
-  td {
-    padding: 10px 10px;
-    white-space: nowrap;
-    vertical-align: top;
-  }
+.chip {
+  display: inline-flex; align-items: center;
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 6px 14px; border-radius: 20px;
+}
+.chip-brand  { background: var(--accent-dim); color: var(--accent); }
+.chip-logout {
+  background: var(--surface); color: var(--muted);
+  border: 1px solid var(--border); cursor: pointer;
+  transition: all 0.15s;
+}
+.chip-logout:hover { color: var(--text); border-color: var(--muted); }
 
-  /* ── Tier Badges ── */
-  .tier-badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .tier-HOT { background: #ff4444; color: #fff; }
-  .tier-WARM { background: #ff8800; color: #0D0D0D; }
-  .tier-WATCH { background: #ADFF2F; color: #0D0D0D; }
-  .tier-PASS { background: #2A2A2A; color: #888888; }
+/* ─── TABS ───────────────────────────────────── */
+.tabs { display: flex; gap: 8px; padding: 0 48px 16px; flex-wrap: wrap; }
+.tab {
+  padding: 8px 18px; border-radius: 20px;
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); transition: all 0.15s; user-select: none;
+}
+.tab:hover { border-color: var(--accent); color: var(--text); }
+.tab.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 700; }
 
-  /* ── Score Bar ── */
-  .score-bar {
-    width: 60px;
-    height: 6px;
-    background: #2A2A2A;
-    border-radius: 3px;
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-  .score-bar-fill {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 0.3s;
-  }
+/* ─── STATS ──────────────────────────────────── */
+.stats { display: flex; gap: 12px; padding: 0 48px 20px; flex-wrap: wrap; }
+.stat {
+  background: var(--surface); border-radius: 12px;
+  padding: 18px 24px; flex: 1; min-width: 120px;
+}
+.stat.s-hot  { border-left: 3px solid var(--hot); }
+.stat.s-warm { border-left: 3px solid var(--warm); }
+.stat.s-watch{ border-left: 3px solid var(--accent); }
+.stat-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px;
+}
+.stat-value { font-size: 32px; font-weight: 900; line-height: 1; }
+.c-hot   { color: var(--hot); }
+.c-warm  { color: var(--warm); }
+.c-accent{ color: var(--accent); }
 
-  /* ── Signal Tags ── */
-  .signal-tag {
-    display: inline-block;
-    background: #2A2A2A;
-    color: #ADFF2F;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 10px;
-    font-weight: 500;
-    margin: 1px 3px 1px 0;
-    white-space: nowrap;
-  }
-  .signal-tag.distress { background: #3a1111; color: #ff6666; }
+/* ─── STATE GRID ─────────────────────────────── */
+.state-section { padding: 0 48px 24px; }
+.state-section h3 { font-size: 18px; font-weight: 800; margin-bottom: 14px; }
+.state-section h3 span { color: var(--accent); }
+.state-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 10px; }
 
-  /* ── Property Link ── */
-  .prop-link {
-    color: #FFFFFF;
-    text-decoration: none;
-    border-bottom: 1px dotted #555;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .prop-link:hover { color: #ADFF2F; border-color: #ADFF2F; }
+.state-card {
+  background: var(--surface); border-radius: 10px;
+  padding: 16px 18px; cursor: pointer;
+  border: 1px solid transparent; transition: all 0.15s;
+}
+.state-card:hover  { border-color: var(--accent); }
+.state-card.active { border-color: var(--accent); background: var(--accent-dim); }
+.state-name  { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
+.state-meta  { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.state-meta strong { font-weight: 700; }
+.state-bar { display: flex; gap: 2px; height: 3px; margin-top: 10px; overflow: hidden; border-radius: 2px; }
+.state-bar div { height: 100%; }
 
-  /* ── Source Portal Link ── */
-  .portal-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    margin-left: 7px;
-    border-radius: 5px;
-    background: #2A2A2A;
-    color: #888;
-    font-size: 10px;
-    text-decoration: none;
-    transition: background 0.15s, color 0.15s;
-    vertical-align: middle;
-  }
-  .portal-link:hover { background: #1A3320; color: #ADFF2F; }
-  .portal-link.freddie { background: #1a2033; color: #6699ff; }
-  .portal-link.freddie:hover { background: #223; color: #99bbff; }
-  .portal-link.fannie { background: #1a2a1a; color: #66cc66; }
-  .portal-link.fannie:hover { background: #1a3a1a; color: #99ff99; }
-  .portal-link.cmbs { background: #2a1a00; color: #cc8800; }
-  .portal-link.cmbs:hover { background: #3a2a00; color: #ffbb33; }
+/* ─── FILTERS ────────────────────────────────── */
+.filters { display: flex; gap: 12px; padding: 0 48px 20px; flex-wrap: wrap; align-items: flex-end; }
+.fg label {
+  display: block; font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--muted); margin-bottom: 4px;
+}
+.fg select, .fg input {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); padding: 8px 12px; border-radius: 8px;
+  font-family: inherit; font-size: 13px; min-width: 148px; outline: none;
+  transition: border-color 0.15s;
+}
+.fg select:focus, .fg input:focus { border-color: var(--accent); }
 
-  /* ── Calculated Column Values ── */
-  .calc-value { color: #ccc; font-size: 12px; }
-  .calc-value.highlight { color: #ADFF2F; font-weight: 600; }
-  .calc-na { color: #444; font-size: 11px; }
+.tier-pills { display: flex; gap: 6px; align-items: flex-end; }
+.tier-pill {
+  padding: 7px 15px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  cursor: pointer; border: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); transition: all 0.15s; user-select: none;
+}
+.tier-pill:hover { border-color: var(--accent); color: var(--text); }
+.tp-active{ background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.tp-hot   { background: var(--hot);    color: #fff;       border-color: var(--hot); }
+.tp-warm  { background: var(--warm);   color: var(--bg);  border-color: var(--warm); }
+.tp-watch { background: var(--accent); color: var(--bg);  border-color: var(--accent); }
 
-  /* ── Compact Long-Text Cells ── */
-  .long-text-cell {
-    max-width: 240px;
-    white-space: normal;
-    line-height: 1.35;
-    font-size: 11px;
-    color: #aaa;
-    cursor: pointer;
-  }
-  .long-text-cell .text-short {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    word-break: break-word;
-    overflow-wrap: anywhere;
-  }
-  .long-text-cell.expanded .text-short {
-    -webkit-line-clamp: unset;
-  }
-  .long-text-cell .text-toggle {
-    color: #ADFF2F;
-    font-size: 10px;
-    cursor: pointer;
-    margin-top: 2px;
-    display: inline-block;
-  }
-  .long-text-cell .text-toggle:hover { text-decoration: underline; }
+/* ─── TABLE ──────────────────────────────────── */
+.table-wrap { padding: 0 48px 48px; overflow-x: auto; }
 
-  /* ── Map Section ── */
-  .map-section {
-    padding: 8px 48px 16px;
-  }
-  .map-section h2 {
-    font-size: 24px;
-    font-weight: 800;
-    margin-bottom: 16px;
-  }
-  .map-section h2 span { color: #ADFF2F; }
-  .state-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-  }
-  .state-card {
-    background: #1A1A1A;
-    border-radius: 10px;
-    padding: 18px 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-    border: 1px solid transparent;
-  }
-  .state-card:hover { border-color: #ADFF2F; }
-  .state-card.selected { border-color: #ADFF2F; background: #1A3320; }
-  .state-card .state-name {
-    font-weight: 800;
-    font-size: 18px;
-    margin-bottom: 4px;
-  }
-  .state-card .state-count {
-    color: #888888;
-    font-size: 12px;
-  }
-  .state-card .state-count strong { color: #ADFF2F; font-weight: 700; }
-  .state-mini-bars {
-    display: flex;
-    gap: 3px;
-    margin-top: 10px;
-    height: 4px;
-  }
-  .state-mini-bars div { border-radius: 2px; height: 100%; }
+table {
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 100%;
+}
 
+thead th {
+  background: var(--surface);
+  padding: 11px 13px;
+  text-align: left;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer; user-select: none;
+  position: sticky; top: 0;
+}
+thead th:hover { color: var(--accent); }
+thead th.no-sort { cursor: default; }
+thead th.no-sort:hover { color: var(--muted); }
+.sort-arrow { font-size: 9px; margin-left: 2px; }
 
-  /* ── Tighter First Columns ── */
-  th.col-property, td.col-property { min-width: 220px; max-width: 220px; }
-  td.col-property { overflow: hidden; text-overflow: ellipsis; }
-  thead th:nth-child(2), tbody td:nth-child(2) { min-width: 120px; max-width: 120px; }
-  thead th:nth-child(3), tbody td:nth-child(3) { min-width: 70px; max-width: 70px; }
-  thead th:nth-child(4), tbody td:nth-child(4) { min-width: 90px; max-width: 90px; }
-  thead th:nth-child(5), tbody td:nth-child(5) { min-width: 70px; max-width: 70px; }
+/* Frozen first column */
+th.col-prop, td.col-prop {
+  position: sticky; left: 0; z-index: 2;
+  min-width: 210px; max-width: 210px;
+}
+th.col-prop {
+  z-index: 10;
+  background: var(--surface);
+  box-shadow: 3px 0 10px rgba(0,0,0,0.6);
+}
+td.col-prop {
+  background: #111;
+  box-shadow: 3px 0 10px rgba(0,0,0,0.4);
+  font-weight: 700;
+}
 
-  /* ── Footer ── */
-  .footer {
-    padding: 20px 48px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 10px;
-    color: #888888;
-  }
-  .footer .brand { color: #ADFF2F; font-weight: 500; }
+tbody tr { border-bottom: 1px solid var(--surface); transition: background 0.08s; }
+tbody tr:nth-child(odd)  { background: #111111; }
+tbody tr:nth-child(even) { background: var(--bg); }
+tbody tr:hover           { background: var(--accent-dim); }
+tbody tr:hover td.col-prop { background: var(--accent-dim); }
+tbody tr:nth-child(even) td.col-prop { background: var(--bg); }
 
+td { padding: 10px 13px; white-space: nowrap; vertical-align: middle; }
 
-  th:nth-child(1), td:nth-child(1) { min-width: 210px; }
-  th:nth-child(2), td:nth-child(2) { min-width: 88px; }
-  th:nth-child(3), td:nth-child(3) { min-width: 52px; }
-  th:nth-child(4), td:nth-child(4) { min-width: 82px; }
-  th:nth-child(5), td:nth-child(5) { min-width: 58px; }
-  th:nth-child(18), td:nth-child(18),
-  th:nth-child(19), td:nth-child(19),
-  th:nth-child(20), td:nth-child(20) { min-width: 155px; max-width: 155px; }
+/* Per-column widths */
+.c-city    { min-width: 110px; }
+.c-state   { min-width:  55px; }
+.c-units   { min-width:  60px; }
+.c-score   { min-width:  95px; }
+.c-tier    { min-width:  80px; }
+.c-bal     { min-width:  90px; }
+.c-lbpu    { min-width: 105px; }
+.c-origy   { min-width: 100px; }
+.c-airange { min-width: 145px; }
+.c-aimid   { min-width: 110px; }
+.c-airat   { min-width: 220px; max-width: 240px; white-space: normal; }
+.c-airisk  { min-width: 200px; max-width: 220px; white-space: normal; }
+.c-dscr    { min-width:  68px; }
+.c-occ     { min-width:  68px; }
+.c-lender  { min-width: 165px; max-width: 190px; }
+.c-servicer{ min-width: 155px; max-width: 180px; }
+.c-mat     { min-width: 100px; }
+.c-exec    { min-width: 260px; max-width: 280px; white-space: normal; }
 
-  /* ── Responsive ── */
-  @media (max-width: 768px) {
-    .header, .nav-tabs, .stats-row, .filters, .table-wrap, .map-section, .footer { padding-left: 20px; padding-right: 20px; }
-    .header h1 { font-size: 28px; }
-    .stat-card .value { font-size: 28px; }
-  }
+/* ─── TIER BADGE ─────────────────────────────── */
+.tier-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.t-HOT  { background: var(--hot);    color: #fff; }
+.t-WARM { background: var(--warm);   color: var(--bg); }
+.t-WATCH{ background: var(--accent); color: var(--bg); }
+.t-PASS { background: var(--border); color: var(--muted); }
+
+/* ─── SCORE BAR ──────────────────────────────── */
+.score-wrap { display: flex; align-items: center; gap: 7px; }
+.score-bar  { width: 48px; height: 5px; background: var(--border); border-radius: 3px; flex-shrink: 0; }
+.score-fill { height: 100%; border-radius: 3px; }
+
+/* ─── PROPERTY LINK ──────────────────────────── */
+.prop-link {
+  color: var(--text); text-decoration: none;
+  border-bottom: 1px dotted var(--faint);
+  font-weight: 700; font-size: 12px;
+  transition: color 0.15s, border-color 0.15s;
+  display: inline-block; max-width: 200px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  vertical-align: bottom;
+}
+.prop-link:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ─── TEXT CELLS (expandable) ────────────────── */
+.text-cell {
+  font-size: 11px; color: #999; line-height: 1.4;
+  word-break: break-word; white-space: normal;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+  cursor: pointer;
+}
+.text-cell:hover { color: #bbb; }
+.text-cell.open  { -webkit-line-clamp: unset; }
+
+/* ─── TRUNCATE CELLS (single line) ──────────── */
+.trunc {
+  display: block; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; color: #ccc; font-size: 12px;
+  max-width: 180px;
+}
+
+/* ─── HIGHLIGHTS ─────────────────────────────── */
+.hi    { color: var(--accent); font-weight: 600; }
+.muted { color: var(--faint); font-size: 11px; }
+
+/* ─── STATUS TOAST ───────────────────────────── */
+#status {
+  position: fixed; top: 14px; right: 14px; z-index: 9500;
+  font-size: 11px; font-family: Inter, sans-serif;
+  padding: 6px 14px; border-radius: 8px; pointer-events: none;
+  transition: opacity 0.5s;
+}
+
+/* ─── FOOTER ─────────────────────────────────── */
+.footer {
+  padding: 20px 48px;
+  display: flex; justify-content: space-between; flex-wrap: wrap;
+  font-size: 10px; color: var(--muted); gap: 8px;
+}
+.footer .brand { color: var(--accent); font-weight: 600; }
+
+/* ─── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 768px) {
+  .header, .tabs, .stats, .state-section,
+  .filters, .table-wrap, .footer { padding-left: 20px; padding-right: 20px; }
+  .header-title { font-size: 26px; }
+  .stat-value   { font-size: 26px; }
+}
 </style>
 </head>
 <body>
 
-<!-- ── LOGIN OVERLAY ── -->
+<!-- ── LOGIN ───────────────────────────────────── -->
 <div id="loginOverlay">
   <div class="login-box">
     <div class="login-brand">Oasis CRE Advisors</div>
     <h2>Deal Pipeline</h2>
-    <div class="login-sub">Internal access only. Enter your password to continue.</div>
-    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
-    <button onclick="attemptLogin()">Access Dashboard →</button>
-    <div class="login-error" id="loginError"></div>
+    <p class="login-sub">Internal access only. Enter your password to continue.</p>
+    <input type="password" id="pwInput" placeholder="••••••••" autocomplete="current-password">
+    <button class="login-btn" id="loginBtn">Access Dashboard →</button>
+    <div class="login-err" id="loginErr"></div>
     <div class="login-footer">Confidential — Not for distribution</div>
   </div>
 </div>
 
-<!-- ── MAIN APP ── -->
-<div id="appShell">
+<!-- ── APP ─────────────────────────────────────── -->
+<div id="app">
 
-<div class="header">
-  <div>
-    <h1>Pre-Stress <span>Lead Dashboard</span></h1>
-    <div class="subtitle">CMBS Distressed Deal Pipeline &mdash; Southeast US Multifamily</div>
+  <div class="header">
+    <div>
+      <div class="header-title">Pre-Stress <span id="pageLabel">Lead Dashboard</span></div>
+      <div class="header-sub" id="pageSub">Multi-source distressed deal pipeline — Southeast US</div>
+    </div>
+    <div class="header-right">
+      <div class="chip chip-brand">Oasis CRE Advisors</div>
+      <div class="chip chip-logout" id="logoutBtn">Log out</div>
+    </div>
   </div>
-  <div class="header-right">
-    <div class="brand-tag">Oasis CRE Advisors</div>
-    <div class="logout-btn" onclick="logout()">Log out</div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-page="all">All Sources</div>
+    <div class="tab" data-page="cmbs">EDGAR / CMBS</div>
+    <div class="tab" data-page="hud">HUD</div>
+    <div class="tab" data-page="fannie">Fannie</div>
+    <div class="tab" data-page="freddie">Freddie</div>
   </div>
-</div>
 
-<div class="nav-tabs">
-  <div class="nav-tab active" data-page="all">All Sources</div>
-  <div class="nav-tab" data-page="cmbs">EDGAR / CMBS</div>
-  <div class="nav-tab" data-page="hud">HUD</div>
-  <div class="nav-tab" data-page="fannie">Fannie</div>
-  <div class="nav-tab" data-page="freddie">Freddie</div>
-</div>
+  <div class="stats" id="statsRow"></div>
 
-<div class="stats-row" id="statsRow"></div>
-
-<div class="map-section">
-  <h2>Leads by <span>State</span></h2>
-  <div class="state-grid" id="stateGrid"></div>
-</div>
-
-<div class="filters">
-  <div class="filter-group">
-    <label>State</label>
-    <select id="filterState"><option value="">All States</option></select>
+  <div class="state-section">
+    <h3>Leads by <span>State</span></h3>
+    <div class="state-grid" id="stateGrid"></div>
   </div>
-  <div class="filter-group">
-    <label>City</label>
-    <select id="filterCity"><option value="">All Cities</option></select>
-  </div>
-  <div class="filter-group">
-    <label>Source</label>
-    <select id="filterSource"><option value="">All Sources</option></select>
-  </div>
-  <div class="filter-group">
-    <label>Search</label>
-    <input type="text" id="filterSearch" placeholder="Property name...">
-  </div>
-  <div class="tier-pills" id="tierPills"></div>
-</div>
 
-<div class="table-wrap">
-  <table>
-    <colgroup>
-      <col style="width: 220px; min-width: 220px;">
-      <col style="width: 120px; min-width: 120px;">
-      <col style="width: 70px; min-width: 70px;">
-      <col style="width: 90px; min-width: 90px;">
-      <col style="width: 70px; min-width: 70px;">
-    </colgroup>
-    <thead>
-      <tr>
-        <th class="col-property" data-sort="name">Property <span class="sort-arrow"></span></th>
-        <th data-sort="city">City <span class="sort-arrow"></span></th>
-        <th data-sort="state">State <span class="sort-arrow"></span></th>
-        <th data-sort="source">Source <span class="sort-arrow"></span></th>
-        <th data-sort="units">Units <span class="sort-arrow"></span></th>
-        <th data-sort="adjustedScore">Score <span class="sort-arrow"></span></th>
-        <th data-sort="priorityTier">Tier <span class="sort-arrow"></span></th>
-        <th data-sort="dscr">DSCR <span class="sort-arrow"></span></th>
-        <th data-sort="occupancy">Occ % <span class="sort-arrow"></span></th>
-        <th data-sort="balance">Balance <span class="sort-arrow"></span></th>
-        <th data-sort="loanBasisPerUnit">Loan $/Unit <span class="sort-arrow"></span></th>
-                <th class="rent-only" data-sort="originationYear">Origination Year <span class="sort-arrow"></span></th>
-        <th class="rent-only" data-sort="yearBuilt">Year Built <span class="sort-arrow"></span></th>
-        <th class="rent-only" data-sort="aiRentRangeSort">AI Rent Range <span class="sort-arrow"></span></th>
-        <th class="rent-only" data-sort="aiRentMid">AI Rent Midpoint <span class="sort-arrow"></span></th>
-        <th class="rent-only" data-sort="aiRentRationale">AI Rent Rationale <span class="sort-arrow"></span></th>
-        <th class="rent-only" data-sort="aiRentRisk">AI Rent Risk Caveat <span class="sort-arrow"></span></th>
-        <th data-sort="maturity">Maturity <span class="sort-arrow"></span></th>
-        <th data-sort="lender">Lender <span class="sort-arrow"></span></th>
-        <th data-sort="ownerGp">Owner/GP <span class="sort-arrow"></span></th>
-        <th data-sort="servicer">Servicer <span class="sort-arrow"></span></th>
-        <th>Signals</th>
-        <th>Executive Summary</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
-</div>
+  <div class="filters">
+    <div class="fg">
+      <label>State</label>
+      <select id="fState"><option value="">All States</option></select>
+    </div>
+    <div class="fg">
+      <label>City</label>
+      <select id="fCity"><option value="">All Cities</option></select>
+    </div>
+    <div class="fg">
+      <label>Search</label>
+      <input type="text" id="fSearch" placeholder="Property name...">
+    </div>
+    <div class="tier-pills" id="tierPills"></div>
+  </div>
 
-<div class="footer">
-  <span>Oasis CRE Advisors &mdash; Confidential</span>
-  <span class="brand">oasiscreadvisors.com</span>
-</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-prop" data-sort="name">Property <span class="sort-arrow"></span></th>
+          <th class="c-city"    data-sort="city">City <span class="sort-arrow"></span></th>
+          <th class="c-state"   data-sort="state">State <span class="sort-arrow"></span></th>
+          <th class="c-units"   data-sort="units">Units <span class="sort-arrow"></span></th>
+          <th class="c-score"   data-sort="adjustedScore">Score <span class="sort-arrow"></span></th>
+          <th class="c-tier"    data-sort="priorityTier">Tier <span class="sort-arrow"></span></th>
+          <th class="c-bal"     data-sort="balance">Balance <span class="sort-arrow"></span></th>
+          <th class="c-lbpu"   data-sort="loanBasisPerUnit">Loan $/Unit <span class="sort-arrow"></span></th>
+          <th class="c-origy"  data-sort="originationYear">Orig. Year <span class="sort-arrow"></span></th>
+          <th class="c-airange" data-sort="aiRentRangeSort">AI Rent Range <span class="sort-arrow"></span></th>
+          <th class="c-aimid"  data-sort="aiRentMid">AI Rent Mid <span class="sort-arrow"></span></th>
+          <th class="c-airat no-sort">AI Rationale</th>
+          <th class="c-airisk no-sort">AI Risk</th>
+          <th class="c-dscr"   data-sort="dscr">DSCR <span class="sort-arrow"></span></th>
+          <th class="c-occ"    data-sort="occupancy">Occ % <span class="sort-arrow"></span></th>
+          <th class="c-lender" data-sort="lender">Lender <span class="sort-arrow"></span></th>
+          <th class="c-servicer" data-sort="servicer">Servicer <span class="sort-arrow"></span></th>
+          <th class="c-mat"    data-sort="maturity">Maturity <span class="sort-arrow"></span></th>
+          <th class="c-exec no-sort">Executive Summary</th>
+        </tr>
+      </thead>
+      <tbody id="tBody"></tbody>
+    </table>
+  </div>
 
-</div><!-- /appShell -->
+  <div class="footer">
+    <span>Oasis CRE Advisors — Confidential</span>
+    <span class="brand">oasiscreadvisors.com</span>
+  </div>
+
+</div><!-- /app -->
+
+<div id="status"></div>
 
 <script>
+// ─────────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────────
+const PASSWORD    = 'oasis2024';
+const SHEET_CSV   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRUs1ua1i9_IvnJQ_lWet1puckH_Gaf49gW3J1kHuUs-9xcP4tuzojtS9pUxdgPSOr9T88A9SLpdmT/pub?gid=0&single=true&output=csv';
+const SHEET_ID    = '1pKXelpQSWMOA9TneczajTSaDP1NqwwF14KtMmVudsTU';
+const SS_KEY      = 'oasis_auth';
 
-// ─────────────────────────────────────────────
-// CONFIG — change password here
-// ─────────────────────────────────────────────
-const DASHBOARD_PASSWORD = 'oasis2024';
+const STATE_NAMES = {
+  FL:'Florida', GA:'Georgia', TN:'Tennessee',
+  NC:'North Carolina', SC:'South Carolina',
+  AL:'Alabama', MS:'Mississippi', VA:'Virginia',
+  TX:'Texas', LA:'Louisiana'
+};
+const TIER_ORDER = ['HOT','WARM','WATCH','WATCH*','REVIEW','PASS','PASS (no data)'];
 
-// ─────────────────────────────────────────────
-// LOGIN
-// ─────────────────────────────────────────────
-function checkSession() {
-  return sessionStorage.getItem('oasis_auth') === DASHBOARD_PASSWORD;
-}
+const PAGE_META = {
+  all:    ['Lead Dashboard',         'Multi-source distressed deal pipeline — Southeast US'],
+  cmbs:   ['EDGAR / CMBS',           'CMBS distressed deal pipeline'],
+  hud:    ['HUD Dashboard',          'HUD source deal pipeline'],
+  fannie: ['Fannie Dashboard',       'Fannie Mae source deal pipeline'],
+  freddie:['Freddie Dashboard',      'Freddie Mac source deal pipeline'],
+};
 
-function attemptLogin() {
-  const val = document.getElementById('loginPassword').value;
-  const input = document.getElementById('loginPassword');
-  const errEl = document.getElementById('loginError');
-  if (val === DASHBOARD_PASSWORD) {
-    sessionStorage.setItem('oasis_auth', val);
+// ─────────────────────────────────────────────────
+// APP STATE
+// ─────────────────────────────────────────────────
+let LEADS   = [];
+let page    = 'all';
+let sortCol = 'adjustedScore';
+let sortDir = -1;
+let fState  = '', fCity = '', fSearch = '', fTier = '';
+
+// ─────────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────────
+function isAuthed() { return sessionStorage.getItem(SS_KEY) === PASSWORD; }
+
+function tryLogin() {
+  const val   = document.getElementById('pwInput').value;
+  const input = document.getElementById('pwInput');
+  const err   = document.getElementById('loginErr');
+  if (val === PASSWORD) {
+    sessionStorage.setItem(SS_KEY, val);
     document.getElementById('loginOverlay').classList.add('hidden');
-    document.getElementById('appShell').classList.add('visible');
-    loadDashboard();
+    document.getElementById('app').classList.add('visible');
+    loadData();
   } else {
-    input.classList.add('error');
-    errEl.textContent = 'Incorrect password. Try again.';
-    setTimeout(() => { input.classList.remove('error'); errEl.textContent = ''; }, 2500);
-    input.value = '';
-    input.focus();
+    input.classList.add('err');
+    err.textContent = 'Incorrect password. Try again.';
+    setTimeout(() => { input.classList.remove('err'); err.textContent = ''; }, 2500);
+    input.value = ''; input.focus();
   }
 }
 
 function logout() {
-  sessionStorage.removeItem('oasis_auth');
+  sessionStorage.removeItem(SS_KEY);
   document.getElementById('loginOverlay').classList.remove('hidden');
-  document.getElementById('appShell').classList.remove('visible');
-  document.getElementById('loginPassword').value = '';
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('pwInput').value = '';
 }
 
-// Allow Enter key on login
-document.getElementById('loginPassword').addEventListener('keydown', e => {
-  if (e.key === 'Enter') attemptLogin();
-});
+document.getElementById('loginBtn').addEventListener('click', tryLogin);
+document.getElementById('pwInput').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+document.getElementById('logoutBtn').addEventListener('click', logout);
 
-// Auto-bypass if session still active
-if (checkSession()) {
+if (isAuthed()) {
   document.getElementById('loginOverlay').classList.add('hidden');
-  document.getElementById('appShell').classList.add('visible');
+  document.getElementById('app').classList.add('visible');
 }
 
-// ─────────────────────────────────────────────
-// GOOGLE SHEETS CONFIG
-// ─────────────────────────────────────────────
-const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRUs1ua1i9_IvnJQ_lWet1puckH_Gaf49gW3J1kHuUs-9xcP4tuzojtS9pUxdgPSOr9T88A9SLpdmT/pub?gid=0&single=true&output=csv';
-
-
-function parseCSVLine(line) {
-  const result = [];
-  let cur = '';
-  let inQuotes = false;
+// ─────────────────────────────────────────────────
+// CSV PARSER
+// ─────────────────────────────────────────────────
+function parseLine(line) {
+  const out = []; let cur = '', q = false;
   for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        cur += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (ch === ',' && !inQuotes) {
-      result.push(cur);
-      cur = '';
-    } else {
-      cur += ch;
-    }
+    const c = line[i];
+    if (c === '"') {
+      if (q && line[i + 1] === '"') { cur += '"'; i++; }
+      else { q = !q; }
+    } else if (c === ',' && !q) { out.push(cur); cur = ''; }
+    else { cur += c; }
   }
-  result.push(cur);
-  return result;
+  out.push(cur);
+  return out;
 }
 
 function parseCSV(text) {
-  const lines = text.replace(/^﻿/, '').split(/\r?\n/).filter(line => line.trim() !== '');
+  const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim());
   if (!lines.length) return [];
-  const headers = parseCSVLine(lines[0]).map(h => h.trim());
+  const headers = parseLine(lines[0]).map(h => h.trim());
   return lines.slice(1).map(line => {
-    const values = parseCSVLine(line);
-    const row = {};
-    headers.forEach((h, i) => row[h] = values[i] ?? '');
+    const vals = parseLine(line);
+    const row  = {};
+    headers.forEach((h, i) => { row[h] = (vals[i] ?? '').trim(); });
     return row;
   });
 }
 
-// ─────────────────────────────────────────────
-// PORTAL LINK BUILDER
-// Returns the original deal page URL based on source
-// ─────────────────────────────────────────────
-function getPortalLink(l) {
-  const src = (l.source || '').toLowerCase();
-  const tid = l.transactionId;
-  const loan = l.loanNumber;
-  const trust = l.cmbsTrust;
-
-  if (src.includes('freddie')) {
-    if (tid) return { url: `https://mf.freddiemac.com/docs/deal/${tid}`, cls: 'freddie', label: 'FM' };
-    return { url: 'https://freddiemac.com/mf/investors', cls: 'freddie', label: 'FM' };
-  }
-  if (src.includes('fannie') || src.includes('dus')) {
-    if (tid) return { url: `https://mfdusdisclose.fanniemae.com/#/transaction/${tid}`, cls: 'fannie', label: 'FN' };
-    return { url: 'https://mfdusdisclose.fanniemae.com', cls: 'fannie', label: 'FN' };
-  }
-  if (src.includes('cmbs')) {
-    if (loan) return { url: `https://www.cmbs.com/loans/${loan}`, cls: 'cmbs', label: 'CB' };
-    if (trust) return { url: `https://www.cmbs.com/deals/${encodeURIComponent(trust)}`, cls: 'cmbs', label: 'CB' };
-    return { url: 'https://www.cmbs.com', cls: 'cmbs', label: 'CB' };
+// ─────────────────────────────────────────────────
+// SCHEMA
+// ─────────────────────────────────────────────────
+function fv(row, keys) {
+  for (const k of keys) {
+    const v = row[k];
+    if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();
   }
   return null;
 }
 
-// ─────────────────────────────────────────────
-// UTILS
-// ─────────────────────────────────────────────
-function firstValue(row, keys) {
-  for (const key of keys) {
-    if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
-      return row[key];
-    }
-  }
-  return null;
+function toNum(v) {
+  if (v == null || v === '') return null;
+  const n = parseFloat(String(v).replace(/[$,%]/g, '').trim());
+  return isFinite(n) ? n : null;
 }
 
-function parseNum(value) {
-  if (value === null || value === undefined || value === '') return null;
-  const cleaned = String(value).replace(/[%,$]/g, '').trim();
-  const n = parseFloat(cleaned);
-  return Number.isFinite(n) ? n : null;
+function toInt(v) {
+  if (v == null || v === '') return null;
+  const n = parseInt(String(v).trim(), 10);
+  return isFinite(n) ? n : null;
 }
 
-function parseIntSafe(value) {
-  if (value === null || value === undefined || value === '') return null;
-  const n = parseInt(String(value).trim(), 10);
-  return Number.isFinite(n) ? n : null;
-}
+function parseRow(row, i) {
+  const noteDate = fv(row, ['Note Date','note_date']);
+  const rawOrig  = fv(row, ['origination_year','Origination Year']);
+  const origYear = rawOrig || (noteDate ? String(noteDate).slice(0, 4) : null);
 
-// ─────────────────────────────────────────────
-// SCHEMA PARSER
-// ─────────────────────────────────────────────
-function parseSheetRow(row) {
-  const noteDate = firstValue(row, ['Note Date', 'note_date']);
-  const rawOriginationYear = firstValue(row, ['origination_year', 'Origination Year']);
-  const derivedOriginationYear = rawOriginationYear || (noteDate ? String(noteDate).slice(0, 4) : null);
-
-  const out = {
-    name:              firstValue(row, ['property_name', 'Property Name', 'PROPERTY_NAME_TEXT', 'Property', 'name']),
-    city:              firstValue(row, ['city', 'City', 'Property City']),
-    state:             firstValue(row, ['state', 'State', 'Property State']),
-    source:            firstValue(row, ['source', 'Data Source', 'Source', '_source']),
-    units:             firstValue(row, ['units', 'Units', 'number_of_units', 'Property Acquisition Total Unit Count', 'Unit Count']),
-    dscr:              firstValue(row, ['dscr', 'DSCR', 'Underwritten DSCR', 'UW DSCR', 'DSCR (NCF)']),
-    occupancy:         firstValue(row, ['occupancy', 'Occupancy', 'Physical Occupancy %', 'Occupancy %']),
-    balance:           firstValue(row, ['loan_balance', 'Loan Balance', 'balance', 'UPB - Current', 'Current Balance', 'Current UPB', 'Current Loan Balance', 'Current Unpaid Principal Balance']),
-    maturity:          firstValue(row, ['maturity_date', 'Maturity Date', 'maturity', 'Maturity Date - Current', 'Maturity Date at Acquisition']),
-    lender:            firstValue(row, ['lender', 'Lender', 'Originator', 'Original Lender', 'Mortgage Originator']),
-    ownerGp:           firstValue(row, ['owner_gp', 'Owner/GP', 'Owner GP', 'owner', 'Owner', 'Borrower Entity', 'Borrower', 'Sponsor', 'Sponsor Name']),
-    servicer:          firstValue(row, ['servicer', 'Servicer', 'Primary Servicer', 'Master Servicer', 'Special Servicer']),
-    originationYear:   derivedOriginationYear,
-    yearBuilt:         firstValue(row, ['year_built', 'Year Built']),
-    aiRentLow:         firstValue(row, ['ai_rent_low', 'AI Rent Low']),
-    aiRentHigh:        firstValue(row, ['ai_rent_high', 'AI Rent High']),
-    aiRentMid:         firstValue(row, ['ai_rent_mid', 'ai_rent_midpoint', 'AI Rent Midpoint']),
-    aiRentRange:       firstValue(row, ['ai_rent_range', 'AI Rent Range']),
-    aiRentRationale:   firstValue(row, ['ai_rent_rationale', 'AI Rent Rationale']),
-    aiRentRisk:        firstValue(row, ['ai_rent_risk', 'ai_rent_risk_caveat', 'AI Rent Risk Caveat']),
-    executiveSummary:  firstValue(row, ['executiveSummary', 'Executive Summary', 'executive_summary']),
-    acquisitionAngle:  firstValue(row, ['acquisitionAngle', 'Acquisition Angle', 'acquisition_angle']),
-    distressSignals:   firstValue(row, ['distressSignals', 'Distress Signals', 'distress_signals', 'signals']),
-    priorityTier:      firstValue(row, ['priorityTier', 'Priority Tier', 'priority_tier', 'tier']),
-    adjustedScore:     firstValue(row, ['adjustedScore', 'Adjusted Score', 'adjusted_score', 'score']),
-    baseDistressScore: firstValue(row, ['baseDistressScore', 'Base Distress Score', 'base_distress_score']),
-    scoreAdjustment:   firstValue(row, ['scoreAdjustment', 'Score Adjustment', 'score_adjustment']),
-    dataQualityFlag:   firstValue(row, ['dataQualityFlag', 'Data Quality Flag', 'data_quality_flag']),
-    status:            firstValue(row, ['status', 'Status']),
-    lastUpdated:       firstValue(row, ['lastUpdated', 'Last Updated', 'last_updated']),
-    address:           firstValue(row, ['address', 'Property Address', 'Address']),
-    county:            firstValue(row, ['county', 'County']),
-    borrower:          firstValue(row, ['borrower', 'Borrower Entity', 'Borrower']),
-    rateType:          firstValue(row, ['rate_type', 'rateType', 'Rate Type', 'Interest Type']),
-    cmbsTrust:         firstValue(row, ['cmbsTrust', 'CMBS Trust', 'Trust', 'Deal Name']),
-    reportPeriod:      firstValue(row, ['report_period', 'Report Period', 'Reporting Period Date']),
-    loanNumber:        firstValue(row, ['loan_number', 'Loan Number', 'Asset Number']),
-    transactionId:     firstValue(row, ['transaction_id', 'Transaction ID', 'Deal ID']),
+  const r = {
+    name:            fv(row, ['property_name','Property Name','PROPERTY_NAME_TEXT','Property','name']) || '',
+    city:            fv(row, ['city','City','Property City']) || '',
+    state:           fv(row, ['state','State','Property State']) || '',
+    source:          fv(row, ['source','Data Source','Source','_source']) || 'Unknown',
+    units:           fv(row, ['units','Units','number_of_units','Unit Count','Property Acquisition Total Unit Count']) || '',
+    dscr:            toNum(fv(row, ['dscr','DSCR','Underwritten DSCR','UW DSCR','DSCR (NCF)'])),
+    occupancy:       toNum(fv(row, ['occupancy','Occupancy','Physical Occupancy %','Occupancy %'])),
+    balance:         toNum(fv(row, ['loan_balance','Loan Balance','balance','UPB - Current','Current Balance','Current UPB','Current Unpaid Principal Balance'])) || 0,
+    maturity:        fv(row, ['maturity_date','Maturity Date','maturity','Maturity Date - Current','Maturity Date at Acquisition']) || '',
+    lender:          fv(row, ['lender','Lender','Originator','Original Lender','Mortgage Originator']) || '',
+    ownerGp:         fv(row, ['owner_gp','Owner/GP','Owner GP','Borrower Entity','Borrower','Sponsor','Sponsor Name']) || '',
+    servicer:        fv(row, ['servicer','Servicer','Primary Servicer','Master Servicer','Special Servicer']) || '',
+    originationYear: toInt(origYear),
+    yearBuilt:       toInt(fv(row, ['year_built','Year Built'])),
+    aiRentLow:       toNum(fv(row, ['ai_rent_low','AI Rent Low'])),
+    aiRentHigh:      toNum(fv(row, ['ai_rent_high','AI Rent High'])),
+    aiRentMid:       toNum(fv(row, ['ai_rent_mid','ai_rent_midpoint','AI Rent Midpoint'])),
+    aiRentRange:     fv(row, ['ai_rent_range','AI Rent Range']) || '',
+    aiRentRationale: fv(row, ['ai_rent_rationale','AI Rent Rationale']) || '',
+    aiRentRisk:      fv(row, ['ai_rent_risk','ai_rent_risk_caveat','AI Rent Risk Caveat']) || '',
+    executiveSummary:fv(row, ['executiveSummary','Executive Summary','executive_summary']) || '',
+    distressSignals: fv(row, ['distressSignals','Distress Signals','distress_signals','signals']) || '',
+    priorityTier:    fv(row, ['priorityTier','Priority Tier','priority_tier','tier']) || 'PASS (no data)',
+    adjustedScore:   toInt(fv(row, ['adjustedScore','Adjusted Score','adjusted_score','score'])) || 0,
+    cmbsTrust:       fv(row, ['cmbsTrust','CMBS Trust','Trust','Deal Name']) || '',
+    loanNumber:      fv(row, ['loan_number','Loan Number','Asset Number']) || '',
+    transactionId:   fv(row, ['transaction_id','Transaction ID','Deal ID']) || '',
+    _row:            i + 2,
   };
 
-  out.dscr              = parseNum(out.dscr);
-  out.occupancy         = parseNum(out.occupancy);
-  out.balance           = parseNum(out.balance) || 0;
-  out.adjustedScore     = parseIntSafe(out.adjustedScore) || 0;
-  out.baseDistressScore = parseIntSafe(out.baseDistressScore);
-  out.scoreAdjustment   = parseIntSafe(out.scoreAdjustment) || 0;
-  out.avgRent           = parseNum(out.avgRent);
-  out.originationYear   = parseIntSafe(out.originationYear);
-  out.yearBuilt         = parseIntSafe(out.yearBuilt);
-  out.aiRentLow         = parseNum(out.aiRentLow);
-  out.aiRentHigh        = parseNum(out.aiRentHigh);
-  out.aiRentMid         = parseNum(out.aiRentMid);
-  out.aiRentRangeSort   = out.aiRentMid || out.aiRentLow || 0;
-  out.units             = out.units || '';
-  out.priorityTier      = out.priorityTier || 'PASS (no data)';
-  out.distressSignals   = out.distressSignals || '';
-  out.executiveSummary  = out.executiveSummary || '';
-  out.lender            = out.lender || '';
-  out.ownerGp           = out.ownerGp || '';
-  out.servicer          = out.servicer || '';
-  out.source            = out.source || 'Unknown';
-  out.city              = out.city || '';
-  out.state             = out.state || '';
-  out.name              = out.name || '';
-
-  const unitsNum = parseInt(out.units, 10);
-  out.loanBasisPerUnit = (out.balance && unitsNum > 0) ? Math.round(out.balance / unitsNum) : null;
-
-  return out;
+  const uNum = parseInt(r.units, 10);
+  r.loanBasisPerUnit = (r.balance && uNum > 0) ? Math.round(r.balance / uNum) : null;
+  r.aiRentRangeSort  = r.aiRentMid || r.aiRentLow || 0;
+  return r;
 }
 
-// ─────────────────────────────────────────────
-// DATA
-// ─────────────────────────────────────────────
-let LEADS = [];
-
-const FALLBACK_LEADS = [
-  {"name": "The Hill", "city": "Columbus", "state": "GA", "units": "258", "dscr": null, "occupancy": 58.14, "paymentStatus": 2, "balance": 4100000.0, "maturity": "01-06-2029", "score": 100, "tier": "HOT", "signals": "Payment Status: 2; Special Servicer; Workout; Low Occupancy", "lender": "Argentic Real Estate Finance 2 LLC", "servicer": "Berkadia", "specialServicer": true, "workout": true},
-  {"name": "Residence at Patriot Place", "city": "Columbus", "state": "GA", "units": "257", "dscr": null, "occupancy": null, "paymentStatus": 3, "balance": 33000000.0, "maturity": "12-06-2028", "score": 100, "tier": "HOT", "signals": "Payment Status: 3; Special Servicer; Workout", "lender": "UBS AG", "servicer": "Midland Loan Services", "specialServicer": true, "workout": true},
-  {"name": "THE WYMORE 360", "city": "Altamonte Springs", "state": "FL", "units": "200", "dscr": 0.4983, "occupancy": 81.0, "paymentStatus": 0, "balance": 33000000.0, "maturity": "11-06-2029", "score": 40, "tier": "WATCH", "signals": "Low DSCR", "lender": "DBR Investments Co. Limited", "servicer": "Wells Fargo Bank, NA", "specialServicer": false, "workout": false}
+// ─────────────────────────────────────────────────
+// FALLBACK DATA
+// ─────────────────────────────────────────────────
+const FALLBACK_RAW = [
+  { name:'The Hill', city:'Columbus', state:'GA', source:'CMBS', units:'258', dscr:null, occupancy:58.14, balance:4100000, maturity:'01-06-2029', adjustedScore:100, priorityTier:'HOT', distressSignals:'Payment Status: 2; Special Servicer; Workout; Low Occupancy', lender:'Argentic Real Estate Finance 2 LLC', servicer:'Berkadia', executiveSummary:'', aiRentRationale:'', aiRentRisk:'' },
+  { name:'Residence at Patriot Place', city:'Columbus', state:'GA', source:'CMBS', units:'257', dscr:null, occupancy:null, balance:33000000, maturity:'12-06-2028', adjustedScore:100, priorityTier:'HOT', distressSignals:'Payment Status: 3; Special Servicer; Workout', lender:'UBS AG', servicer:'Midland Loan Services', executiveSummary:'', aiRentRationale:'', aiRentRisk:'' },
+  { name:'THE WYMORE 360', city:'Altamonte Springs', state:'FL', source:'CMBS', units:'200', dscr:0.4983, occupancy:81.0, balance:33000000, maturity:'11-06-2029', adjustedScore:40, priorityTier:'WATCH', distressSignals:'Low DSCR', lender:'DBR Investments Co. Limited', servicer:'Wells Fargo Bank, NA', executiveSummary:'', aiRentRationale:'', aiRentRisk:'' },
 ];
-
-function normalizeFallbackLead(l) {
-  const out = {
-    name:              l.name || '',
-    city:              l.city || '',
-    state:             l.state || '',
-    source:            l.source || 'CMBS',
-    units:             l.units || '',
-    dscr:              l.dscr,
-    occupancy:         l.occupancy,
-    balance:           l.balance || 0,
-    maturity:          l.maturity || '',
-    lender:            l.lender || '',
-    servicer:          l.servicer || '',
-    avgRent:           l.avgRent || null,
-    originationYear:   l.originationYear || null,
-    yearBuilt:         l.yearBuilt || null,
-    aiRentLow:         l.aiRentLow || null,
-    aiRentHigh:        l.aiRentHigh || null,
-    aiRentMid:         l.aiRentMid || null,
-    aiRentRange:       l.aiRentRange || '',
-    aiRentRationale:   l.aiRentRationale || '',
-    aiRentRisk:        l.aiRentRisk || '',
-    executiveSummary:  l.executiveSummary || l.executive_summary || '',
-    acquisitionAngle:  l.acquisitionAngle || '',
-    distressSignals:   l.distressSignals || l.distress_signals || l.signals || '',
-    priorityTier:      l.priorityTier || l.priority_tier || l.tier || 'PASS (no data)',
-    adjustedScore:     l.adjustedScore || l.adjusted_score || l.score || 0,
-    baseDistressScore: l.baseDistressScore || null,
-    scoreAdjustment:   l.scoreAdjustment || 0,
-    dataQualityFlag:   l.dataQualityFlag || '',
-    status:            l.status || 'New',
-    lastUpdated:       l.lastUpdated || '',
-    transactionId:     l.transactionId || l.transaction_id || '',
-    loanNumber:        l.loanNumber || l.loan_number || '',
-    cmbsTrust:         l.cmbsTrust || '',
-    _rowIndex:         l._rowIndex || ''
+const FALLBACK = FALLBACK_RAW.map((l, i) => {
+  const uNum = parseInt(l.units, 10);
+  return {
+    ...l,
+    ownerGp:'', originationYear:null, yearBuilt:null,
+    aiRentLow:null, aiRentHigh:null, aiRentMid:null,
+    aiRentRange:'', aiRentRangeSort:0,
+    cmbsTrust:'', loanNumber:'', transactionId:'',
+    loanBasisPerUnit: (l.balance && uNum > 0) ? Math.round(l.balance / uNum) : null,
+    _row: i + 2,
   };
-  const unitsNum = parseInt(out.units, 10);
-  out.loanBasisPerUnit = (out.balance && unitsNum > 0) ? Math.round(out.balance / unitsNum) : null;
-  out.aiRentRangeSort = out.aiRentMid || out.aiRentLow || 0;
-  return out;
+});
+
+// ─────────────────────────────────────────────────
+// STATUS TOAST
+// ─────────────────────────────────────────────────
+const statusEl = document.getElementById('status');
+function showStatus(msg, bg, color) {
+  statusEl.textContent = msg;
+  statusEl.style.cssText = `background:${bg};color:${color};opacity:1;position:fixed;top:14px;right:14px;z-index:9500;font-size:11px;font-family:Inter,sans-serif;padding:6px 14px;border-radius:8px;pointer-events:none;transition:opacity 0.5s;`;
+  setTimeout(() => { statusEl.style.opacity = '0.3'; }, 3500);
 }
 
-const STATE_NAMES = {FL:'Florida',GA:'Georgia',TN:'Tennessee',NC:'North Carolina',SC:'South Carolina',AL:'Alabama'};
-const TIER_ORDER  = ['HOT','WARM','WATCH','WATCH*','REVIEW','PASS','PASS (no data)'];
-const TIER_COLORS = {'HOT':'#ff4444','WARM':'#ff8800','WATCH':'#ADFF2F','WATCH*':'#88cc00','REVIEW':'#ffcc00','PASS':'#2A2A2A','PASS (no data)':'#1A1A1A'};
-
-let filterState  = '';
-let filterCity   = '';
-let filterSource = '';
-let filterSearch = '';
-let filterTier   = '';
-let sortCol      = 'adjustedScore';
-let sortDir      = -1;
-let eventsBound  = false;
-let currentPage  = 'all';
-
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
-function updatePageMeta() {
-  const titleEl = document.querySelector('.header h1');
-  const subEl = document.querySelector('.header .subtitle');
-  const labels = { all: 'Lead Dashboard', cmbs: 'EDGAR / CMBS Dashboard', hud: 'HUD Dashboard', fannie: 'Fannie Dashboard', freddie: 'Freddie Dashboard' };
-  titleEl.innerHTML = `Pre-Stress <span>${labels[currentPage]}</span>`;
-  subEl.innerHTML = currentPage === 'all'
-    ? 'Multi-source distressed deal pipeline'
-    : `Source-specific view for ${labels[currentPage].replace(' Dashboard','')}`;
+// ─────────────────────────────────────────────────
+// LOAD DATA
+// ─────────────────────────────────────────────────
+function loadData() {
+  showStatus('Fetching live data…', '#1A3320', '#ADFF2F');
+  fetch(SHEET_CSV)
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(csv => {
+      const parsed = parseCSV(csv).filter(r => Object.values(r).some(v => v.trim()));
+      if (parsed.length) {
+        LEADS = parsed.map(parseRow).filter(r => r.name.trim());
+        const n = LEADS.filter(isActionable).length;
+        showStatus(`LIVE — ${n} actionable (${LEADS.length} total)`, '#1A3320', '#ADFF2F');
+      } else {
+        LEADS = FALLBACK;
+        showStatus('Sheet empty — snapshot data', '#2A2A2A', '#888');
+      }
+      init();
+    })
+    .catch(() => {
+      LEADS = FALLBACK;
+      showStatus('Offline — snapshot data', '#3a1111', '#ff6666');
+      init();
+    });
 }
 
-function init() {
-  updatePageMeta();
-  buildStats();
-  buildStateGrid();
-  buildFilters();
-  buildTierPills();
-  renderTable();
-  bindEvents();
-}
-
-function isActionable(l) {
-  return l.priorityTier && !l.priorityTier.startsWith('PASS');
-}
+// ─────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────
+function isActionable(l) { return l.priorityTier && !l.priorityTier.startsWith('PASS'); }
 
 function matchesPage(l) {
-  const src = (l.source || '').toLowerCase();
-  if (currentPage === 'cmbs') return src.includes('cmbs') || src.includes('edgar');
-  if (currentPage === 'hud') return src.includes('hud');
-  if (currentPage === 'fannie') return src.includes('fannie') || src.includes('fnma');
-  if (currentPage === 'freddie') return src.includes('freddie') || src.includes('fhlmc');
+  const s = (l.source || '').toLowerCase();
+  if (page === 'cmbs')    return s.includes('cmbs') || s.includes('edgar');
+  if (page === 'hud')     return s.includes('hud');
+  if (page === 'fannie')  return s.includes('fannie') || s.includes('fnma');
+  if (page === 'freddie') return s.includes('freddie') || s.includes('fhlmc');
   return true;
 }
 
-function toggleRentColumns() {
-  const show = currentPage === 'hud' || currentPage === 'fannie' || currentPage === 'freddie';
-  document.querySelectorAll('.rent-only').forEach(el => {
-    el.style.display = show ? '' : 'none';
-  });
+function activeLeads() {
+  return LEADS.filter(l => isActionable(l) && matchesPage(l));
 }
 
-function renderLongTextCell(value, maxWidth = 240, clickable = true, color = '#aaa') {
-  const raw = (value || '').toString().trim();
-  if (!raw) return '<span style="color:#555">—</span>';
-  const safe = raw
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-  const clickableAttr = clickable ? ' onclick="this.classList.toggle(\'expanded\')" title="Click to expand"' : '';
-  const toggle = clickable ? '<span class="text-toggle">more ▾</span>' : '';
-  const cursor = clickable ? 'pointer' : 'default';
-  return `<div class="long-text-cell" style="max-width:${maxWidth}px;color:${color};cursor:${cursor}"${clickableAttr}><div class="text-short">${safe}</div>${toggle}</div>`;
-}
-
-function filtered() {
-  return LEADS.filter(l => {
-    if (!isActionable(l)) return false;
-    if (!matchesPage(l)) return false;
-    if (filterState  && l.state  !== filterState)  return false;
-    if (filterCity   && l.city   !== filterCity)   return false;
-    if (filterSource && l.source !== filterSource) return false;
-    if (filterTier) {
-      if (filterTier === 'WATCH') {
-        if (!['WATCH','WATCH*'].includes(l.priorityTier)) return false;
-      } else if (l.priorityTier !== filterTier) {
-        return false;
+function getFiltered() {
+  return activeLeads()
+    .filter(l => {
+      if (fState  && l.state !== fState)   return false;
+      if (fCity   && l.city  !== fCity)    return false;
+      if (fTier) {
+        if (fTier === 'WATCH') { if (!['WATCH','WATCH*'].includes(l.priorityTier)) return false; }
+        else if (l.priorityTier !== fTier) return false;
       }
-    }
-    if (filterSearch && !(l.name || '').toLowerCase().includes(filterSearch.toLowerCase())) return false;
-    return true;
-  });
+      if (fSearch && !l.name.toLowerCase().includes(fSearch.toLowerCase())) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      let va = a[sortCol], vb = b[sortCol];
+      if (sortCol === 'priorityTier') {
+        va = TIER_ORDER.indexOf(va); vb = TIER_ORDER.indexOf(vb);
+      } else if (['balance','adjustedScore','loanBasisPerUnit','originationYear',
+                  'aiRentMid','aiRentRangeSort','units'].includes(sortCol)) {
+        va = Number(va) || 0; vb = Number(vb) || 0;
+      } else if (['dscr','occupancy'].includes(sortCol)) {
+        va = va == null ? -Infinity : Number(va);
+        vb = vb == null ? -Infinity : Number(vb);
+      } else {
+        va = (va || '').toString().toLowerCase();
+        vb = (vb || '').toString().toLowerCase();
+      }
+      return va < vb ? -sortDir : va > vb ? sortDir : 0;
+    });
 }
 
-// ─────────────────────────────────────────────
-// STATS
-// ─────────────────────────────────────────────
-function buildStats() {
-  const ACTIVE   = LEADS.filter(l => isActionable(l) && matchesPage(l));
-  const total    = ACTIVE.length;
-  const hot      = ACTIVE.filter(l => l.priorityTier === 'HOT').length;
-  const warm     = ACTIVE.filter(l => l.priorityTier === 'WARM').length;
-  const watch    = ACTIVE.filter(l => ['WATCH','WATCH*'].includes(l.priorityTier)).length;
-  const totalBal = ACTIVE.reduce((s,l) => s + (l.balance || 0), 0);
-
-  document.getElementById('statsRow').innerHTML = `
-    <div class="stat-card"><div class="label">Actionable Leads</div><div class="value">${total}</div></div>
-    <div class="stat-card hot"><div class="label">Hot</div><div class="value accent" style="color:#ff4444">${hot}</div></div>
-    <div class="stat-card warm"><div class="label">Warm</div><div class="value" style="color:#ff8800">${warm}</div></div>
-    <div class="stat-card watch"><div class="label">Watch</div><div class="value accent">${watch}</div></div>
-    <div class="stat-card"><div class="label">Total Balance</div><div class="value" style="font-size:24px">$${(totalBal/1e6).toFixed(0)}M</div></div>
-    <div class="stat-card"><div class="label">States</div><div class="value">${new Set(ACTIVE.map(l=>l.state).filter(Boolean)).size}</div></div>
-    <div class="stat-card"><div class="label">Cities</div><div class="value">${new Set(ACTIVE.map(l=>l.city).filter(Boolean)).size}</div></div>
-  `;
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ─────────────────────────────────────────────
-// STATE GRID
-// ─────────────────────────────────────────────
-function buildStateGrid() {
-  const states = {};
-  LEADS.filter(l => isActionable(l) && matchesPage(l)).forEach(l => {
-    if (!states[l.state]) states[l.state] = {total:0, tiers:{}};
-    states[l.state].total++;
-    states[l.state].tiers[l.priorityTier] = (states[l.state].tiers[l.priorityTier]||0) + 1;
+function fmt$(n) {
+  if (!n) return '<span class="muted">—</span>';
+  return n >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : `$${(n / 1e3).toFixed(0)}K`;
+}
+
+function fmtNum(n, dec = 2) {
+  return n == null ? '<span class="muted">—</span>' : Number(n).toFixed(dec);
+}
+
+function fmtPct(n) {
+  return n == null ? '<span class="muted">—</span>' : `${Number(n).toFixed(1)}%`;
+}
+
+function scoreColor(s) {
+  return s >= 85 ? '#ff4444' : s >= 60 ? '#ff8800' : s >= 30 ? '#ADFF2F' : '#2A2A2A';
+}
+
+function tierCls(t) {
+  if (!t || t.startsWith('PASS')) return 'PASS';
+  if (t.startsWith('HOT'))  return 'HOT';
+  if (t.startsWith('WARM')) return 'WARM';
+  if (t.startsWith('WATCH'))return 'WATCH';
+  return 'PASS';
+}
+
+function dash(v) { return v ? esc(v) : '<span class="muted">—</span>'; }
+
+function textCell(v) {
+  if (!v) return '<span class="muted">—</span>';
+  return `<div class="text-cell" title="Click to expand" onclick="this.classList.toggle('open')">${esc(v)}</div>`;
+}
+
+function truncCell(v, maxW = 180) {
+  if (!v) return '<span class="muted">—</span>';
+  return `<span class="trunc" style="max-width:${maxW}px" title="${esc(v)}">${esc(v)}</span>`;
+}
+
+// ─────────────────────────────────────────────────
+// RENDER: STATS
+// ─────────────────────────────────────────────────
+function renderStats() {
+  const leads = activeLeads();
+  const hot   = leads.filter(l => l.priorityTier === 'HOT').length;
+  const warm  = leads.filter(l => l.priorityTier === 'WARM').length;
+  const watch = leads.filter(l => ['WATCH','WATCH*'].includes(l.priorityTier)).length;
+  const bal   = leads.reduce((s, l) => s + (l.balance || 0), 0);
+  const states= new Set(leads.map(l => l.state).filter(Boolean)).size;
+
+  document.getElementById('statsRow').innerHTML = [
+    `<div class="stat"><div class="stat-label">Actionable Leads</div><div class="stat-value">${leads.length}</div></div>`,
+    `<div class="stat s-hot"><div class="stat-label">Hot</div><div class="stat-value c-hot">${hot}</div></div>`,
+    `<div class="stat s-warm"><div class="stat-label">Warm</div><div class="stat-value c-warm">${warm}</div></div>`,
+    `<div class="stat s-watch"><div class="stat-label">Watch</div><div class="stat-value c-accent">${watch}</div></div>`,
+    `<div class="stat"><div class="stat-label">Total Exposure</div><div class="stat-value" style="font-size:20px">$${(bal/1e6).toFixed(0)}M</div></div>`,
+    `<div class="stat"><div class="stat-label">States</div><div class="stat-value">${states}</div></div>`,
+  ].join('');
+}
+
+// ─────────────────────────────────────────────────
+// RENDER: STATE GRID
+// ─────────────────────────────────────────────────
+function renderStateGrid() {
+  const map = {};
+  activeLeads().forEach(l => {
+    if (!l.state) return;
+    if (!map[l.state]) map[l.state] = { total:0, hot:0, warm:0, watch:0 };
+    map[l.state].total++;
+    const t = l.priorityTier;
+    if (t === 'HOT')  map[l.state].hot++;
+    else if (t === 'WARM') map[l.state].warm++;
+    else if (t === 'WATCH' || t === 'WATCH*') map[l.state].watch++;
   });
 
-  const grid = document.getElementById('stateGrid');
-  grid.innerHTML = Object.entries(states)
-    .sort((a,b) => b[1].total - a[1].total)
-    .map(([st, info]) => {
-      const hotW   = (info.tiers['HOT']||0) / info.total * 100;
-      const warmW  = (info.tiers['WARM']||0) / info.total * 100;
-      const watchW = ((info.tiers['WATCH']||0) + (info.tiers['WATCH*']||0)) / info.total * 100;
-      const passW  = 100 - hotW - warmW - watchW;
-      const hotCount   = info.tiers['HOT']||0;
-      const warmCount  = info.tiers['WARM']||0;
-      const watchCount = (info.tiers['WATCH']||0) + (info.tiers['WATCH*']||0);
-      return `<div class="state-card${filterState===st?' selected':''}" data-state="${st}">
-        <div class="state-name">${STATE_NAMES[st]||st}</div>
-        <div class="state-count">${info.total} leads${hotCount?` &middot; <strong>${hotCount} HOT</strong>`:''}${warmCount?` &middot; <strong style="color:#ff8800">${warmCount} WARM</strong>`:''}${watchCount?` &middot; <strong>${watchCount} WATCH</strong>`:''}</div>
-        <div class="state-mini-bars">
-          ${hotW?`<div style="width:${hotW}%;background:#ff4444"></div>`:''}
-          ${warmW?`<div style="width:${warmW}%;background:#ff8800"></div>`:''}
-          ${watchW?`<div style="width:${watchW}%;background:#ADFF2F"></div>`:''}
-          <div style="width:${passW}%;background:#2A2A2A"></div>
+  document.getElementById('stateGrid').innerHTML = Object.entries(map)
+    .sort((a, b) => b[1].total - a[1].total)
+    .map(([st, d]) => {
+      const t = d.total;
+      const pH = d.hot/t*100, pW = d.warm/t*100, pWa = d.watch/t*100;
+      const meta = [
+        d.hot   ? `<strong class="c-hot">${d.hot} HOT</strong>`    : '',
+        d.warm  ? `<strong class="c-warm">${d.warm} WARM</strong>` : '',
+        d.watch ? `<strong class="c-accent">${d.watch} WATCH</strong>` : '',
+      ].filter(Boolean).join(' &middot; ');
+      return `<div class="state-card${fState===st?' active':''}" data-state="${st}">
+        <div class="state-name">${STATE_NAMES[st] || st}</div>
+        <div class="state-meta">${t} lead${t!==1?'s':''}${meta ? ' &nbsp;·&nbsp; '+meta : ''}</div>
+        <div class="state-bar">
+          ${pH  ? `<div style="width:${pH }%;background:#ff4444"></div>` : ''}
+          ${pW  ? `<div style="width:${pW }%;background:#ff8800"></div>` : ''}
+          ${pWa ? `<div style="width:${pWa}%;background:#ADFF2F"></div>` : ''}
+          <div style="flex:1;background:#2A2A2A"></div>
         </div>
       </div>`;
     }).join('');
 }
 
-// ─────────────────────────────────────────────
-// FILTERS
-// ─────────────────────────────────────────────
-function buildFilters() {
-  const ACTIVE  = LEADS.filter(l => isActionable(l) && matchesPage(l));
-  const states  = [...new Set(ACTIVE.map(l=>l.state).filter(Boolean))].sort();
-  const stSel   = document.getElementById('filterState');
-  stSel.innerHTML = '<option value="">All States</option>' + states.map(s=>`<option value="${s}">${STATE_NAMES[s]||s}</option>`).join('');
-
-  const sources = [...new Set(ACTIVE.map(l => l.source).filter(Boolean))].sort();
-  const srcSel  = document.getElementById('filterSource');
-  srcSel.innerHTML = '<option value="">All Sources</option>' + sources.map(s=>`<option value="${s}">${s}</option>`).join('');
-
-  updateCityFilter();
+// ─────────────────────────────────────────────────
+// RENDER: FILTERS
+// ─────────────────────────────────────────────────
+function renderStateFilter() {
+  const states = [...new Set(activeLeads().map(l => l.state).filter(Boolean))].sort();
+  document.getElementById('fState').innerHTML =
+    '<option value="">All States</option>' +
+    states.map(s => `<option value="${s}"${fState===s?' selected':''}>${STATE_NAMES[s]||s}</option>`).join('');
 }
 
-function updateCityFilter() {
-  const base   = LEADS.filter(l => isActionable(l) && matchesPage(l));
-  const pool   = filterState ? base.filter(l=>l.state===filterState) : base;
-  const cities = [...new Set(pool.map(l=>l.city).filter(Boolean))].sort();
-  const cSel   = document.getElementById('filterCity');
-  cSel.innerHTML = '<option value="">All Cities</option>' + cities.map(c=>`<option value="${c}">${c}</option>`).join('');
+function renderCityFilter() {
+  const pool   = fState ? activeLeads().filter(l => l.state === fState) : activeLeads();
+  const cities = [...new Set(pool.map(l => l.city).filter(Boolean))].sort();
+  document.getElementById('fCity').innerHTML =
+    '<option value="">All Cities</option>' +
+    cities.map(c => `<option value="${c}"${fCity===c?' selected':''}>${esc(c)}</option>`).join('');
 }
 
-function buildTierPills() {
-  const tiers  = ['','HOT','WARM','WATCH'];
-  const labels = ['All','HOT','WARM','WATCH'];
-  document.getElementById('tierPills').innerHTML = tiers.map((t,i) => {
-    const cls = filterTier===t ? (t==='HOT'?'active-hot':t==='WARM'?'active-warm':t==='WATCH'?'active-watch':'active') : '';
-    return `<div class="tier-pill ${cls}" data-tier="${t}">${labels[i]}</div>`;
-  }).join('');
+function renderTierPills() {
+  const defs = [
+    { val:'',      label:'All',   cls:'tp-active' },
+    { val:'HOT',   label:'HOT',   cls:'tp-hot'    },
+    { val:'WARM',  label:'WARM',  cls:'tp-warm'   },
+    { val:'WATCH', label:'WATCH', cls:'tp-watch'  },
+  ];
+  document.getElementById('tierPills').innerHTML = defs.map(d =>
+    `<div class="tier-pill${fTier===d.val?' '+d.cls:''}" data-tier="${d.val}">${d.label}</div>`
+  ).join('');
 }
 
-// ─────────────────────────────────────────────
-// TABLE
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────
+// RENDER: TABLE
+// ─────────────────────────────────────────────────
 function renderTable() {
-  const data = filtered().sort((a,b) => {
-    let va = a[sortCol], vb = b[sortCol];
-    if (sortCol === 'priorityTier') { va = TIER_ORDER.indexOf(va); vb = TIER_ORDER.indexOf(vb); }
-    if (['units','balance','adjustedScore','loanBasisPerUnit','avgRent','originationYear','yearBuilt','aiRentMid','aiRentRangeSort'].includes(sortCol)) { va = Number(va)||0; vb = Number(vb)||0; }
-    if (['dscr','occupancy'].includes(sortCol)) { va = va===null?-1:Number(va); vb = vb===null?-1:Number(vb); }
-    if (['lender','servicer','source','name','city','state','maturity','aiRentRationale','aiRentRisk'].includes(sortCol)) { va = (va||'').toString().toLowerCase(); vb = (vb||'').toString().toLowerCase(); }
-    if (va < vb) return -1 * sortDir;
-    if (va > vb) return  1 * sortDir;
-    return 0;
+  // Update sort arrows
+  document.querySelectorAll('thead th[data-sort]').forEach(th => {
+    const arrow = th.querySelector('.sort-arrow');
+    if (arrow) arrow.textContent = th.dataset.sort === sortCol ? (sortDir === 1 ? ' ▲' : ' ▼') : '';
   });
 
-  toggleRentColumns();
+  const data = getFiltered();
 
   if (!data.length) {
-    const visibleCols = document.querySelectorAll('thead th:not([style*="display: none"])').length || 23;
-    document.getElementById('tableBody').innerHTML = `<tr><td colspan="${visibleCols}" style="padding:24px;color:#888">No deals match the current filters.</td></tr>`;
-    document.querySelectorAll('thead th').forEach(th => {
-      const col = th.dataset.sort;
-      const arrow = th.querySelector('.sort-arrow');
-      if (arrow) arrow.textContent = col === sortCol ? (sortDir === 1 ? '▲' : '▼') : '';
-    });
+    document.getElementById('tBody').innerHTML =
+      `<tr><td colspan="19" style="padding:36px;color:var(--faint);text-align:center;font-size:13px">No deals match the current filters.</td></tr>`;
     return;
   }
 
-  document.getElementById('tableBody').innerHTML = data.map(l => {
-    const tierLabel  = l.priorityTier || 'PASS';
-    const tierClass  = tierLabel.startsWith('PASS') ? 'PASS' : tierLabel.replace(/[^A-Z]/g,'');
-    const score      = l.adjustedScore || 0;
-    const scoreColor = score >= 85 ? '#ff4444' : score >= 60 ? '#ff8800' : score >= 30 ? '#ADFF2F' : '#2A2A2A';
-    const scorePct   = Math.min(score, 100);
+  document.getElementById('tBody').innerHTML = data.map(l => {
+    const sc    = l.adjustedScore || 0;
+    const scPct = Math.min(sc, 100);
+    const tc    = tierCls(l.priorityTier);
 
-    const signals = (l.distressSignals||'').split(/\s*\|\s*|\s*;\s*/).filter(Boolean).map(s => {
-      const test   = s.toLowerCase();
-      const isDist = test.includes('special servicer') || test.includes('workout') || test.includes('delinquent') || test.includes('foreclosure') || test.includes('dscr <') || test.includes('occupancy 0') || test.includes('matured');
-      return `<span class="signal-tag${isDist?' distress':''}">${s}</span>`;
-    }).join('');
-
-    const dscrDisplay = l.dscr !== null && l.dscr !== '' ? Number(l.dscr).toFixed(2) : '<span style="color:#555">—</span>';
-    const occDisplay  = l.occupancy !== null && l.occupancy !== '' ? Number(l.occupancy).toFixed(1) + '%' : '<span style="color:#555">—</span>';
-    const balDisplay  = l.balance ? '$' + (l.balance >= 1e6 ? (l.balance/1e6).toFixed(1)+'M' : (l.balance/1e3).toFixed(0)+'K') : '—';
-
-    // Loan Basis Per Unit
-    const lbpuDisplay = l.loanBasisPerUnit
-      ? `<span class="calc-value">$${l.loanBasisPerUnit.toLocaleString()}</span>`
-      : `<span class="calc-na">—</span>`;
-
-    const aiRentRangeDisplay = l.aiRentRange
-      ? `<span class="calc-value">${l.aiRentRange}</span>`
-      : (l.aiRentLow !== null && l.aiRentHigh !== null
-          ? `<span class="calc-value">$${Math.round(l.aiRentLow).toLocaleString()} - $${Math.round(l.aiRentHigh).toLocaleString()}</span>`
-          : `<span class="calc-na">—</span>`);
-    const aiRentMidDisplay = l.aiRentMid !== null
-      ? `<span class="calc-value highlight">$${Math.round(l.aiRentMid).toLocaleString()}</span>`
-      : `<span class="calc-na">—</span>`;
-    const originationYearDisplay = l.originationYear ? l.originationYear : '<span style="color:#555">—</span>';
-    const yearBuiltDisplay = l.yearBuilt ? l.yearBuilt : '<span style="color:#555">—</span>';
-
-    // Google Sheet row link
-    const sheetId   = '1pKXelpQSWMOA9TneczajTSaDP1NqwwF14KtMmVudsTU';
-    const rowNum    = l._rowIndex || '';
-    const sheetLink = rowNum ? `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=0&range=A${rowNum}` : '';
-
-    // Property name cell (frozen column)
-    const nameEl = sheetLink
-      ? `<a class="prop-link" href="${sheetLink}" target="_blank" title="Open in Google Sheet → Row ${rowNum}">${l.name}</a>`
-      : l.name;
-
-    // Source portal link (Freddie / Fannie / CMBS)
-    const portal = getPortalLink(l);
-    const portalEl = portal
-      ? `<a class="portal-link ${portal.cls}" href="${portal.url}" target="_blank" title="Open original deal page">${portal.label}</a>`
+    // Property link → Google Sheet row
+    const sheetUrl = l._row
+      ? `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit#gid=0&range=A${l._row}`
       : '';
+    const propEl = sheetUrl
+      ? `<a class="prop-link" href="${sheetUrl}" target="_blank" title="Open row ${l._row} in Google Sheet">${esc(l.name)}</a>`
+      : `<span style="font-weight:700;font-size:12px">${esc(l.name)}</span>`;
 
-    // Long text cells
-    const execCell = renderLongTextCell(l.executiveSummary, 260, true, '#aaa');
-    const aiRentRationaleCell = renderLongTextCell(l.aiRentRationale, 240, true, '#aaa');
-    const aiRentRiskCell = renderLongTextCell(l.aiRentRisk, 240, true, '#aaa');
-    const lenderCell = renderLongTextCell(l.lender || '—', 180, false, '#fff');
-    const servicerCell = renderLongTextCell(l.servicer || '—', 180, false, '#fff');
-    const ownerGpCell = renderLongTextCell(l.ownerGp || '—', 180, false, '#fff');
+    // AI Rent Range display
+    const aiRange = l.aiRentRange
+      ? `<span class="hi">${esc(l.aiRentRange)}</span>`
+      : (l.aiRentLow != null && l.aiRentHigh != null
+          ? `<span class="hi">$${Math.round(l.aiRentLow).toLocaleString()} – $${Math.round(l.aiRentHigh).toLocaleString()}</span>`
+          : '<span class="muted">—</span>');
+
+    // AI Rent Mid
+    const aiMid = l.aiRentMid != null
+      ? `<span class="hi">$${Math.round(l.aiRentMid).toLocaleString()}</span>`
+      : '<span class="muted">—</span>';
 
     return `<tr>
-      <td class="col-property" style="font-weight:700">${nameEl}${portalEl}</td>
-      <td>${l.city || '—'}</td>
-      <td>${l.state || '—'}</td>
-      <td>${l.source || '—'}</td>
-      <td>${l.units||'—'}</td>
-      <td><div class="score-bar"><div class="score-bar-fill" style="width:${scorePct}%;background:${scoreColor}"></div></div>${score}</td>
-      <td><span class="tier-badge tier-${tierClass}">${tierLabel}</span></td>
-      <td>${dscrDisplay}</td>
-      <td>${occDisplay}</td>
-      <td>${balDisplay}</td>
-      <td>${lbpuDisplay}</td>
-      <td class="rent-only">${originationYearDisplay}</td>
-      <td class="rent-only">${yearBuiltDisplay}</td>
-      <td class="rent-only">${aiRentRangeDisplay}</td>
-      <td class="rent-only">${aiRentMidDisplay}</td>
-      <td class="rent-only">${aiRentRationaleCell}</td>
-      <td class="rent-only">${aiRentRiskCell}</td>
-      <td>${l.maturity||'—'}</td>
-      <td>${lenderCell}</td>
-      <td>${ownerGpCell}</td>
-      <td>${servicerCell}</td>
-      <td>${signals || '<span style="color:#555">—</span>'}</td>
-      <td>${execCell}</td>
+      <td class="col-prop">${propEl}</td>
+      <td class="c-city">${dash(l.city)}</td>
+      <td class="c-state">${dash(l.state)}</td>
+      <td class="c-units">${dash(l.units)}</td>
+      <td class="c-score">
+        <div class="score-wrap">
+          <div class="score-bar"><div class="score-fill" style="width:${scPct}%;background:${scoreColor(sc)}"></div></div>
+          <span>${sc}</span>
+        </div>
+      </td>
+      <td class="c-tier"><span class="tier-badge t-${tc}">${esc(l.priorityTier)}</span></td>
+      <td class="c-bal">${fmt$(l.balance)}</td>
+      <td class="c-lbpu">${l.loanBasisPerUnit ? `<span class="hi">$${l.loanBasisPerUnit.toLocaleString()}</span>` : '<span class="muted">—</span>'}</td>
+      <td class="c-origy">${l.originationYear || '<span class="muted">—</span>'}</td>
+      <td class="c-airange">${aiRange}</td>
+      <td class="c-aimid">${aiMid}</td>
+      <td class="c-airat">${textCell(l.aiRentRationale)}</td>
+      <td class="c-airisk">${textCell(l.aiRentRisk)}</td>
+      <td class="c-dscr">${fmtNum(l.dscr)}</td>
+      <td class="c-occ">${fmtPct(l.occupancy)}</td>
+      <td class="c-lender">${truncCell(l.lender, 170)}</td>
+      <td class="c-servicer">${truncCell(l.servicer, 160)}</td>
+      <td class="c-mat">${dash(l.maturity)}</td>
+      <td class="c-exec">${textCell(l.executiveSummary)}</td>
     </tr>`;
   }).join('');
-
-  document.querySelectorAll('thead th').forEach(th => {
-    const col   = th.dataset.sort;
-    const arrow = th.querySelector('.sort-arrow');
-    if (arrow) arrow.textContent = col === sortCol ? (sortDir === 1 ? '▲' : '▼') : '';
-  });
 }
 
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────
+// FULL REFRESH
+// ─────────────────────────────────────────────────
+function refresh() {
+  const [label, sub] = PAGE_META[page] || PAGE_META.all;
+  document.getElementById('pageLabel').textContent = label;
+  document.getElementById('pageSub').textContent   = sub;
+  renderStats();
+  renderStateGrid();
+  renderStateFilter();
+  renderCityFilter();
+  renderTierPills();
+  renderTable();
+}
+
+// ─────────────────────────────────────────────────
 // EVENTS
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────
 function bindEvents() {
-  if (eventsBound) return;
-  eventsBound = true;
 
-  document.addEventListener('click', e => {
-    const tab = e.target.closest('.nav-tab');
-    if (tab) {
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentPage = tab.dataset.page;
-      filterState = '';
-      filterCity = '';
-      filterSource = '';
-      filterSearch = '';
-      filterTier = '';
-      sortCol = 'adjustedScore';
-      sortDir = -1;
-      const fs = document.getElementById('filterSearch'); if (fs) fs.value = '';
-      updatePageMeta();
-      buildStats();
-      buildStateGrid();
-      buildFilters();
-      const stateEl = document.getElementById('filterState'); if (stateEl) stateEl.value = '';
-      const cityEl = document.getElementById('filterCity'); if (cityEl) cityEl.value = '';
-      const srcEl = document.getElementById('filterSource'); if (srcEl) srcEl.value = '';
-      buildTierPills();
-      renderTable();
-      return;
-    }
-
-    const pill = e.target.closest('.tier-pill');
-    if (pill) {
-      filterTier = pill.dataset.tier;
-      buildTierPills();
-      renderTable();
-      return;
-    }
-
-    const card = e.target.closest('.state-card');
-    if (card) {
-      const st = card.dataset.state;
-      filterState = filterState === st ? '' : st;
-      const stateEl = document.getElementById('filterState'); if (stateEl) stateEl.value = filterState;
-      filterCity = '';
-      updateCityFilter();
-      buildStateGrid();
-      renderTable();
-      return;
-    }
-  }, true);
-
-  document.querySelectorAll('.nav-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentPage = tab.dataset.page;
-      filterState = '';
-      filterCity = '';
-      filterSource = '';
-      filterSearch = '';
-      filterTier = '';
-      sortCol = 'adjustedScore';
-      sortDir = -1;
-      document.getElementById('filterSearch').value = '';
-      updatePageMeta();
-      buildStats();
-      buildStateGrid();
-      buildFilters();
-      document.getElementById('filterState').value = '';
-      document.getElementById('filterCity').value = '';
-      document.getElementById('filterSource').value = '';
-      buildTierPills();
-      renderTable();
-    });
+  // Tab switching
+  document.getElementById('tabs').addEventListener('click', e => {
+    const tab = e.target.closest('.tab');
+    if (!tab) return;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    page    = tab.dataset.page;
+    fState  = ''; fCity = ''; fSearch = ''; fTier = '';
+    sortCol = 'adjustedScore'; sortDir = -1;
+    document.getElementById('fSearch').value = '';
+    refresh();
   });
 
-  document.getElementById('filterState').addEventListener('change', e => {
-    filterState = e.target.value;
-    filterCity  = '';
-    updateCityFilter();
-    buildStateGrid();
+  // State dropdown
+  document.getElementById('fState').addEventListener('change', e => {
+    fState = e.target.value;
+    fCity  = '';
+    renderCityFilter();
+    renderStateGrid();
     renderTable();
   });
-  document.getElementById('filterCity').addEventListener('change', e => {
-    filterCity = e.target.value;
+
+  // City dropdown
+  document.getElementById('fCity').addEventListener('change', e => {
+    fCity = e.target.value;
     renderTable();
   });
-  document.getElementById('filterSource').addEventListener('change', e => {
-    filterSource = e.target.value;
+
+  // Search
+  document.getElementById('fSearch').addEventListener('input', e => {
+    fSearch = e.target.value;
     renderTable();
   });
-  document.getElementById('filterSearch').addEventListener('input', e => {
-    filterSearch = e.target.value;
-    renderTable();
-  });
+
+  // Tier pills
   document.getElementById('tierPills').addEventListener('click', e => {
     const pill = e.target.closest('.tier-pill');
     if (!pill) return;
-    filterTier = pill.dataset.tier;
-    buildTierPills();
+    fTier = pill.dataset.tier;
+    renderTierPills();
     renderTable();
   });
+
+  // State grid cards
   document.getElementById('stateGrid').addEventListener('click', e => {
     const card = e.target.closest('.state-card');
     if (!card) return;
-    const st   = card.dataset.state;
-    filterState = filterState === st ? '' : st;
-    document.getElementById('filterState').value = filterState;
-    filterCity  = '';
-    updateCityFilter();
-    buildStateGrid();
+    const st = card.dataset.state;
+    fState   = fState === st ? '' : st;
+    document.getElementById('fState').value = fState;
+    fCity    = '';
+    renderCityFilter();
+    renderStateGrid();
     renderTable();
   });
-  document.querySelectorAll('thead th[data-sort]').forEach(th => {
-    th.addEventListener('click', () => {
-      const col = th.dataset.sort;
-      if (sortCol === col) sortDir *= -1;
-      else { sortCol = col; sortDir = ['adjustedScore','priorityTier'].includes(col) ? -1 : 1; }
-      renderTable();
-    });
+
+  // Column sort (delegated to thead)
+  document.querySelector('thead').addEventListener('click', e => {
+    const th  = e.target.closest('th[data-sort]');
+    if (!th) return;
+    const col = th.dataset.sort;
+    if (sortCol === col) sortDir *= -1;
+    else { sortCol = col; sortDir = ['adjustedScore','priorityTier'].includes(col) ? -1 : 1; }
+    renderTable();
   });
 }
 
-// ─────────────────────────────────────────────
-// STATUS INDICATOR
-// ─────────────────────────────────────────────
-const statusEl = document.createElement('div');
-statusEl.style.cssText = 'position:fixed;top:12px;right:12px;z-index:9000;font-size:11px;font-family:Inter,sans-serif;padding:6px 14px;border-radius:8px;pointer-events:none;';
-document.body.appendChild(statusEl);
-
-function showStatus(msg, color) {
-  statusEl.textContent = msg;
-  statusEl.style.background = color;
-  statusEl.style.color = color === '#1A3320' ? '#ADFF2F' : '#0D0D0D';
-  setTimeout(() => { statusEl.style.opacity = '0.6'; }, 3000);
-}
-
-// ─────────────────────────────────────────────
-// LOAD DATA (called after login)
-// ─────────────────────────────────────────────
-function loadDashboard() {
-  if (SHEET_CSV_URL.includes('PASTE_YOUR_PUBLISHED_ID_HERE')) {
-    LEADS = FALLBACK_LEADS.map(normalizeFallbackLead);
-    showStatus('OFFLINE MODE — using snapshot data', '#2A2A2A');
-    statusEl.style.color = '#888';
-    init();
-  } else {
-    showStatus('Fetching live data...', '#1A3320');
-    fetch(SHEET_CSV_URL)
-      .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
-      .then(csv => {
-        const parsedRows = parseCSV(csv);
-        if (parsedRows && parsedRows.length > 0) {
-          LEADS = parsedRows
-            .map((row, i) => { const r = parseSheetRow(row); r._rowIndex = i + 2; return r; })
-            .filter(r => r.name && r.name.trim());
-          const actionableCount = LEADS.filter(isActionable).length;
-          showStatus('LIVE — ' + actionableCount + ' actionable (' + LEADS.length + ' total)', '#1A3320');
-        } else {
-          LEADS = FALLBACK_LEADS.map(normalizeFallbackLead);
-          showStatus('Sheet empty — using snapshot', '#2A2A2A');
-          statusEl.style.color = '#888';
-        }
-        init();
-      })
-      .catch(err => {
-        console.warn('Live fetch failed, using fallback:', err);
-        LEADS = FALLBACK_LEADS.map(normalizeFallbackLead);
-        showStatus('Fetch failed — using snapshot data', '#3a1111');
-        statusEl.style.color = '#ff6666';
-        init();
-      });
-  }
+// ─────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────
+function init() {
+  refresh();
+  bindEvents();
 }
 
 // Auto-load if already authenticated
-if (checkSession()) {
-  loadDashboard();
-}
-
+if (isAuthed()) loadData();
 </script>
 </body>
 </html>
