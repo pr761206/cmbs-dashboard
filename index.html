@@ -328,6 +328,7 @@
   td {
     padding: 11px 14px;
     white-space: nowrap;
+    vertical-align: top;
   }
 
   /* ── Tier Badges ── */
@@ -413,32 +414,34 @@
   .calc-value.highlight { color: #ADFF2F; font-weight: 600; }
   .calc-na { color: #444; font-size: 11px; }
 
-  /* ── Executive Summary Cell ── */
-  .exec-summary {
-    max-width: 260px;
+  /* ── Compact Long-Text Cells ── */
+  .long-text-cell {
+    max-width: 240px;
     white-space: normal;
     line-height: 1.35;
     font-size: 11px;
     color: #aaa;
-    cursor: default;
+    cursor: pointer;
   }
-  .exec-summary-short {
+  .long-text-cell .text-short {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    word-break: break-word;
+    overflow-wrap: anywhere;
   }
-  .exec-summary.expanded .exec-summary-short {
+  .long-text-cell.expanded .text-short {
     -webkit-line-clamp: unset;
   }
-  .exec-toggle {
+  .long-text-cell .text-toggle {
     color: #ADFF2F;
     font-size: 10px;
     cursor: pointer;
     margin-top: 2px;
     display: inline-block;
   }
-  .exec-toggle:hover { text-decoration: underline; }
+  .long-text-cell .text-toggle:hover { text-decoration: underline; }
 
   /* ── Map Section ── */
   .map-section {
@@ -898,6 +901,20 @@ function toggleHUDColumns() {
   });
 }
 
+function renderLongTextCell(value, maxWidth = 240, clickable = true, color = '#aaa') {
+  const raw = (value || '').toString().trim();
+  if (!raw) return '<span style="color:#555">—</span>';
+  const safe = raw
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  const clickableAttr = clickable ? ' onclick="this.classList.toggle(\'expanded\')" title="Click to expand"' : '';
+  const toggle = clickable ? '<span class="text-toggle">more ▾</span>' : '';
+  const cursor = clickable ? 'pointer' : 'default';
+  return `<div class="long-text-cell" style="max-width:${maxWidth}px;color:${color};cursor:${cursor}"${clickableAttr}><div class="text-short">${safe}</div>${toggle}</div>`;
+}
+
 function filtered() {
   return LEADS.filter(l => {
     if (!isActionable(l)) return false;
@@ -1078,11 +1095,12 @@ function renderTable() {
       ? `<a class="portal-link ${portal.cls}" href="${portal.url}" target="_blank" title="Open original deal page">${portal.label}</a>`
       : '';
 
-    // Executive summary
-    const execRaw = (l.executiveSummary || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-    const execCell = execRaw
-      ? `<div class="exec-summary" onclick="this.classList.toggle('expanded')"><div class="exec-summary-short">${execRaw}</div><span class="exec-toggle">more ▾</span></div>`
-      : '<span style="color:#555">—</span>';
+    // Long text cells
+    const execCell = renderLongTextCell(l.executiveSummary, 260, true, '#aaa');
+    const aiRentRationaleCell = renderLongTextCell(l.aiRentRationale, 240, true, '#aaa');
+    const aiRentRiskCell = renderLongTextCell(l.aiRentRisk, 240, true, '#aaa');
+    const lenderCell = renderLongTextCell(l.lender || '—', 180, false, '#fff');
+    const servicerCell = renderLongTextCell(l.servicer || '—', 180, false, '#fff');
 
     return `<tr>
       <td class="col-property" style="font-weight:700">${nameEl}${portalEl}</td>
@@ -1101,11 +1119,11 @@ function renderTable() {
       <td class="hud-only">${yearBuiltDisplay}</td>
       <td class="hud-only">${aiRentRangeDisplay}</td>
       <td class="hud-only">${aiRentMidDisplay}</td>
-      <td class="hud-only" style="max-width:240px;white-space:normal;line-height:1.35">${l.aiRentRationale || '<span style="color:#555">—</span>'}</td>
-      <td class="hud-only" style="max-width:240px;white-space:normal;line-height:1.35">${l.aiRentRisk || '<span style="color:#555">—</span>'}</td>
+      <td class="hud-only">${aiRentRationaleCell}</td>
+      <td class="hud-only">${aiRentRiskCell}</td>
       <td>${l.maturity||'—'}</td>
-      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${l.lender||''}">${l.lender||'—'}</td>
-      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${l.servicer||''}">${l.servicer||'—'}</td>
+      <td>${lenderCell}</td>
+      <td>${servicerCell}</td>
       <td>${signals || '<span style="color:#555">—</span>'}</td>
       <td>${execCell}</td>
     </tr>`;
