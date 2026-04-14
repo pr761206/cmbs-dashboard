@@ -614,12 +614,12 @@
         <th data-sort="occupancy">Occ % <span class="sort-arrow"></span></th>
         <th data-sort="balance">Balance <span class="sort-arrow"></span></th>
         <th data-sort="loanBasisPerUnit">Loan $/Unit <span class="sort-arrow"></span></th>
-                <th class="hud-only" data-sort="originationYear">Origination Year <span class="sort-arrow"></span></th>
-        <th class="hud-only" data-sort="yearBuilt">Year Built <span class="sort-arrow"></span></th>
-        <th class="hud-only" data-sort="aiRentRangeSort">AI Rent Range <span class="sort-arrow"></span></th>
-        <th class="hud-only" data-sort="aiRentMid">AI Rent Midpoint <span class="sort-arrow"></span></th>
-        <th class="hud-only" data-sort="aiRentRationale">AI Rent Rationale <span class="sort-arrow"></span></th>
-        <th class="hud-only" data-sort="aiRentRisk">AI Rent Risk Caveat <span class="sort-arrow"></span></th>
+                <th class="rent-only" data-sort="originationYear">Origination Year <span class="sort-arrow"></span></th>
+        <th class="rent-only" data-sort="yearBuilt">Year Built <span class="sort-arrow"></span></th>
+        <th class="rent-only" data-sort="aiRentRangeSort">AI Rent Range <span class="sort-arrow"></span></th>
+        <th class="rent-only" data-sort="aiRentMid">AI Rent Midpoint <span class="sort-arrow"></span></th>
+        <th class="rent-only" data-sort="aiRentRationale">AI Rent Rationale <span class="sort-arrow"></span></th>
+        <th class="rent-only" data-sort="aiRentRisk">AI Rent Risk Caveat <span class="sort-arrow"></span></th>
         <th data-sort="maturity">Maturity <span class="sort-arrow"></span></th>
         <th data-sort="lender">Lender <span class="sort-arrow"></span></th>
         <th data-sort="ownerGp">Owner/GP <span class="sort-arrow"></span></th>
@@ -786,27 +786,31 @@ function parseIntSafe(value) {
 // SCHEMA PARSER
 // ─────────────────────────────────────────────
 function parseSheetRow(row) {
+  const noteDate = firstValue(row, ['Note Date', 'note_date']);
+  const rawOriginationYear = firstValue(row, ['origination_year', 'Origination Year']);
+  const derivedOriginationYear = rawOriginationYear || (noteDate ? String(noteDate).slice(0, 4) : null);
+
   const out = {
-    name:              firstValue(row, ['property_name', 'Property Name', 'name']),
-    city:              firstValue(row, ['city', 'City']),
-    state:             firstValue(row, ['state', 'State']),
-    source:            firstValue(row, ['source', 'Data Source', 'Source']),
-    units:             firstValue(row, ['units', 'Units']),
-    dscr:              firstValue(row, ['dscr', 'DSCR']),
-    occupancy:         firstValue(row, ['occupancy', 'Occupancy']),
-    balance:           firstValue(row, ['loan_balance', 'Loan Balance', 'balance']),
-    maturity:          firstValue(row, ['maturity_date', 'Maturity Date', 'maturity']),
-    lender:            firstValue(row, ['lender', 'Lender']),
-    ownerGp:           firstValue(row, ['owner_gp', 'Owner/GP', 'Owner GP', 'owner', 'Owner']),
-    servicer:          firstValue(row, ['servicer', 'Servicer']),
-    originationYear:   firstValue(row, ['origination_year', 'Origination Year']),
+    name:              firstValue(row, ['property_name', 'Property Name', 'PROPERTY_NAME_TEXT', 'Property', 'name']),
+    city:              firstValue(row, ['city', 'City', 'Property City']),
+    state:             firstValue(row, ['state', 'State', 'Property State']),
+    source:            firstValue(row, ['source', 'Data Source', 'Source', '_source']),
+    units:             firstValue(row, ['units', 'Units', 'number_of_units', 'Property Acquisition Total Unit Count', 'Unit Count']),
+    dscr:              firstValue(row, ['dscr', 'DSCR', 'Underwritten DSCR', 'UW DSCR', 'DSCR (NCF)']),
+    occupancy:         firstValue(row, ['occupancy', 'Occupancy', 'Physical Occupancy %', 'Occupancy %']),
+    balance:           firstValue(row, ['loan_balance', 'Loan Balance', 'balance', 'UPB - Current', 'Current Balance', 'Current UPB', 'Current Loan Balance', 'Current Unpaid Principal Balance']),
+    maturity:          firstValue(row, ['maturity_date', 'Maturity Date', 'maturity', 'Maturity Date - Current', 'Maturity Date at Acquisition']),
+    lender:            firstValue(row, ['lender', 'Lender', 'Originator', 'Original Lender', 'Mortgage Originator']),
+    ownerGp:           firstValue(row, ['owner_gp', 'Owner/GP', 'Owner GP', 'owner', 'Owner', 'Borrower Entity', 'Borrower', 'Sponsor', 'Sponsor Name']),
+    servicer:          firstValue(row, ['servicer', 'Servicer', 'Primary Servicer', 'Master Servicer', 'Special Servicer']),
+    originationYear:   derivedOriginationYear,
     yearBuilt:         firstValue(row, ['year_built', 'Year Built']),
     aiRentLow:         firstValue(row, ['ai_rent_low', 'AI Rent Low']),
     aiRentHigh:        firstValue(row, ['ai_rent_high', 'AI Rent High']),
-    aiRentMid:         firstValue(row, ['ai_rent_mid', 'AI Rent Midpoint']),
+    aiRentMid:         firstValue(row, ['ai_rent_mid', 'ai_rent_midpoint', 'AI Rent Midpoint']),
     aiRentRange:       firstValue(row, ['ai_rent_range', 'AI Rent Range']),
     aiRentRationale:   firstValue(row, ['ai_rent_rationale', 'AI Rent Rationale']),
-    aiRentRisk:        firstValue(row, ['ai_rent_risk', 'AI Rent Risk Caveat']),
+    aiRentRisk:        firstValue(row, ['ai_rent_risk', 'ai_rent_risk_caveat', 'AI Rent Risk Caveat']),
     executiveSummary:  firstValue(row, ['executiveSummary', 'Executive Summary', 'executive_summary']),
     acquisitionAngle:  firstValue(row, ['acquisitionAngle', 'Acquisition Angle', 'acquisition_angle']),
     distressSignals:   firstValue(row, ['distressSignals', 'Distress Signals', 'distress_signals', 'signals']),
@@ -820,11 +824,11 @@ function parseSheetRow(row) {
     address:           firstValue(row, ['address', 'Property Address', 'Address']),
     county:            firstValue(row, ['county', 'County']),
     borrower:          firstValue(row, ['borrower', 'Borrower Entity', 'Borrower']),
-    rateType:          firstValue(row, ['rate_type', 'rateType', 'Rate Type']),
-    cmbsTrust:         firstValue(row, ['cmbsTrust', 'CMBS Trust']),
-    reportPeriod:      firstValue(row, ['report_period', 'Report Period']),
-    loanNumber:        firstValue(row, ['loan_number', 'Loan Number']),
-    transactionId:     firstValue(row, ['transaction_id', 'Transaction ID']),
+    rateType:          firstValue(row, ['rate_type', 'rateType', 'Rate Type', 'Interest Type']),
+    cmbsTrust:         firstValue(row, ['cmbsTrust', 'CMBS Trust', 'Trust', 'Deal Name']),
+    reportPeriod:      firstValue(row, ['report_period', 'Report Period', 'Reporting Period Date']),
+    loanNumber:        firstValue(row, ['loan_number', 'Loan Number', 'Asset Number']),
+    transactionId:     firstValue(row, ['transaction_id', 'Transaction ID', 'Deal ID']),
   };
 
   out.dscr              = parseNum(out.dscr);
@@ -852,7 +856,6 @@ function parseSheetRow(row) {
   out.state             = out.state || '';
   out.name              = out.name || '';
 
-  // Calculated: Loan Basis Per Unit
   const unitsNum = parseInt(out.units, 10);
   out.loanBasisPerUnit = (out.balance && unitsNum > 0) ? Math.round(out.balance / unitsNum) : null;
 
@@ -963,9 +966,9 @@ function matchesPage(l) {
   return true;
 }
 
-function toggleHUDColumns() {
-  const show = currentPage === 'hud';
-  document.querySelectorAll('.hud-only').forEach(el => {
+function toggleRentColumns() {
+  const show = currentPage === 'hud' || currentPage === 'fannie' || currentPage === 'freddie';
+  document.querySelectorAll('.rent-only').forEach(el => {
     el.style.display = show ? '' : 'none';
   });
 }
@@ -1108,10 +1111,11 @@ function renderTable() {
     return 0;
   });
 
-  toggleHUDColumns();
+  toggleRentColumns();
 
   if (!data.length) {
-    document.getElementById('tableBody').innerHTML = `<tr><td colspan="21" style="padding:24px;color:#888">No deals match the current filters.</td></tr>`;
+    const visibleCols = document.querySelectorAll('thead th:not([style*="display: none"])').length || 23;
+    document.getElementById('tableBody').innerHTML = `<tr><td colspan="${visibleCols}" style="padding:24px;color:#888">No deals match the current filters.</td></tr>`;
     document.querySelectorAll('thead th').forEach(th => {
       const col = th.dataset.sort;
       const arrow = th.querySelector('.sort-arrow');
@@ -1189,12 +1193,12 @@ function renderTable() {
       <td>${occDisplay}</td>
       <td>${balDisplay}</td>
       <td>${lbpuDisplay}</td>
-      <td class="hud-only">${originationYearDisplay}</td>
-      <td class="hud-only">${yearBuiltDisplay}</td>
-      <td class="hud-only">${aiRentRangeDisplay}</td>
-      <td class="hud-only">${aiRentMidDisplay}</td>
-      <td class="hud-only">${aiRentRationaleCell}</td>
-      <td class="hud-only">${aiRentRiskCell}</td>
+      <td class="rent-only">${originationYearDisplay}</td>
+      <td class="rent-only">${yearBuiltDisplay}</td>
+      <td class="rent-only">${aiRentRangeDisplay}</td>
+      <td class="rent-only">${aiRentMidDisplay}</td>
+      <td class="rent-only">${aiRentRationaleCell}</td>
+      <td class="rent-only">${aiRentRiskCell}</td>
       <td>${l.maturity||'—'}</td>
       <td>${lenderCell}</td>
       <td>${ownerGpCell}</td>
