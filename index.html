@@ -720,8 +720,7 @@ function parseCSVLine(line) {
 }
 
 function parseCSV(text) {
-  const lines = text.replace(/^﻿/, '').split(/?
-/).filter(line => line.trim() !== '');
+  const lines = text.replace(/^﻿/, '').split(/\r?\n/).filter(line => line.trim() !== '');
   if (!lines.length) return [];
   const headers = parseCSVLine(lines[0]).map(h => h.trim());
   return lines.slice(1).map(line => {
@@ -1176,7 +1175,7 @@ function renderTable() {
     const aiRentRiskCell = renderLongTextCell(l.aiRentRisk, 240, true, '#aaa');
     const lenderCell = renderLongTextCell(l.lender || '—', 180, false, '#fff');
     const servicerCell = renderLongTextCell(l.servicer || '—', 180, false, '#fff');
-    const ownerGpCell  = renderLongTextCell(l.ownerGp  || '—', 180, false, '#fff');
+    const ownerGpCell = renderLongTextCell(l.ownerGp || '—', 180, false, '#fff');
 
     return `<tr>
       <td class="col-property" style="font-weight:700">${nameEl}${portalEl}</td>
