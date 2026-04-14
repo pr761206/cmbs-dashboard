@@ -53,9 +53,8 @@ body {
   text-transform: uppercase; letter-spacing: 0.1em;
   color: var(--accent); margin-bottom: 20px;
 }
-.login-box h2 { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
-.login-sub  { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
-
+.login-box h2  { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
+.login-sub     { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
 .login-box input {
   width: 100%; background: var(--bg);
   border: 1px solid var(--border); border-radius: 10px;
@@ -66,7 +65,6 @@ body {
 }
 .login-box input:focus { border-color: var(--accent); }
 .login-box input.err   { border-color: var(--hot); }
-
 .login-btn {
   width: 100%; background: var(--accent); color: var(--bg);
   border: none; border-radius: 10px; padding: 14px;
@@ -74,7 +72,7 @@ body {
   cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em;
   transition: opacity 0.15s;
 }
-.login-btn:hover { opacity: 0.85; }
+.login-btn:hover  { opacity: 0.85; }
 .login-err    { font-size: 12px; color: var(--hot); margin-top: 12px; min-height: 18px; }
 .login-footer { margin-top: 12px; font-size: 10px; color: var(--faint); }
 
@@ -90,7 +88,7 @@ body {
 }
 .header-title { font-size: 38px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.1; }
 .header-title span { color: var(--accent); }
-.header-sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.header-sub  { font-size: 13px; color: var(--muted); margin-top: 6px; }
 .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
 .chip {
@@ -115,7 +113,7 @@ body {
   border: 1px solid var(--border); background: var(--surface);
   color: var(--muted); transition: all 0.15s; user-select: none;
 }
-.tab:hover { border-color: var(--accent); color: var(--text); }
+.tab:hover  { border-color: var(--accent); color: var(--text); }
 .tab.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 700; }
 
 /* ─── STATS ──────────────────────────────────── */
@@ -132,9 +130,9 @@ body {
   letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px;
 }
 .stat-value { font-size: 32px; font-weight: 900; line-height: 1; }
-.c-hot   { color: var(--hot); }
-.c-warm  { color: var(--warm); }
-.c-accent{ color: var(--accent); }
+.c-hot    { color: var(--hot); }
+.c-warm   { color: var(--warm); }
+.c-accent { color: var(--accent); }
 
 /* ─── STATE GRID ─────────────────────────────── */
 .state-section { padding: 0 48px 24px; }
@@ -149,10 +147,10 @@ body {
 }
 .state-card:hover  { border-color: var(--accent); }
 .state-card.active { border-color: var(--accent); background: var(--accent-dim); }
-.state-name  { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
-.state-meta  { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.state-name { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
+.state-meta { font-size: 11px; color: var(--muted); line-height: 1.4; }
 .state-meta strong { font-weight: 700; }
-.state-bar { display: flex; gap: 2px; height: 3px; margin-top: 10px; overflow: hidden; border-radius: 2px; }
+.state-bar  { display: flex; gap: 2px; height: 3px; margin-top: 10px; overflow: hidden; border-radius: 2px; }
 .state-bar div { height: 100%; }
 
 /* ─── FILTERS ────────────────────────────────── */
@@ -177,19 +175,15 @@ body {
   color: var(--muted); transition: all 0.15s; user-select: none;
 }
 .tier-pill:hover { border-color: var(--accent); color: var(--text); }
-.tp-active{ background: var(--accent); color: var(--bg); border-color: var(--accent); }
-.tp-hot   { background: var(--hot);    color: #fff;       border-color: var(--hot); }
-.tp-warm  { background: var(--warm);   color: var(--bg);  border-color: var(--warm); }
-.tp-watch { background: var(--accent); color: var(--bg);  border-color: var(--accent); }
+.tp-active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.tp-hot    { background: var(--hot);    color: #fff;       border-color: var(--hot); }
+.tp-warm   { background: var(--warm);   color: var(--bg);  border-color: var(--warm); }
+.tp-watch  { background: var(--accent); color: var(--bg);  border-color: var(--accent); }
 
 /* ─── TABLE ──────────────────────────────────── */
 .table-wrap { padding: 0 48px 48px; overflow-x: auto; }
 
-table {
-  border-collapse: collapse;
-  font-size: 12px;
-  min-width: 100%;
-}
+table { border-collapse: collapse; font-size: 12px; min-width: 100%; }
 
 thead th {
   background: var(--surface);
@@ -201,7 +195,7 @@ thead th {
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
   cursor: pointer; user-select: none;
-  position: sticky; top: 0;
+  position: sticky; top: 0; z-index: 1;
 }
 thead th:hover { color: var(--accent); }
 thead th.no-sort { cursor: default; }
@@ -213,45 +207,38 @@ th.col-prop, td.col-prop {
   position: sticky; left: 0; z-index: 2;
   min-width: 210px; max-width: 210px;
 }
-th.col-prop {
-  z-index: 10;
-  background: var(--surface);
-  box-shadow: 3px 0 10px rgba(0,0,0,0.6);
-}
-td.col-prop {
-  background: #111;
-  box-shadow: 3px 0 10px rgba(0,0,0,0.4);
-  font-weight: 700;
-}
+th.col-prop { z-index: 10; background: var(--surface); box-shadow: 3px 0 10px rgba(0,0,0,0.6); }
+td.col-prop { background: #111; box-shadow: 3px 0 10px rgba(0,0,0,0.4); font-weight: 700; }
 
 tbody tr { border-bottom: 1px solid var(--surface); transition: background 0.08s; }
 tbody tr:nth-child(odd)  { background: #111111; }
 tbody tr:nth-child(even) { background: var(--bg); }
 tbody tr:hover           { background: var(--accent-dim); }
-tbody tr:hover td.col-prop { background: var(--accent-dim); }
+tbody tr:hover    td.col-prop { background: var(--accent-dim); }
 tbody tr:nth-child(even) td.col-prop { background: var(--bg); }
 
 td { padding: 10px 13px; white-space: nowrap; vertical-align: middle; }
 
-/* Per-column widths */
-.c-city    { min-width: 110px; }
-.c-state   { min-width:  55px; }
-.c-units   { min-width:  60px; }
-.c-score   { min-width:  95px; }
-.c-tier    { min-width:  80px; }
-.c-bal     { min-width:  90px; }
-.c-lbpu    { min-width: 105px; }
-.c-origy   { min-width: 100px; }
-.c-airange { min-width: 145px; }
-.c-aimid   { min-width: 110px; }
-.c-airat   { min-width: 220px; max-width: 240px; white-space: normal; }
-.c-airisk  { min-width: 200px; max-width: 220px; white-space: normal; }
-.c-dscr    { min-width:  68px; }
-.c-occ     { min-width:  68px; }
-.c-lender  { min-width: 165px; max-width: 190px; }
-.c-servicer{ min-width: 155px; max-width: 180px; }
-.c-mat     { min-width: 100px; }
-.c-exec    { min-width: 260px; max-width: 280px; white-space: normal; }
+/* Column widths — each column has its own semantic class */
+.c-city     { min-width: 110px; }
+.c-state    { min-width:  55px; }
+.c-units    { min-width:  62px; }
+.c-yrbuilt  { min-width:  82px; }
+.c-score    { min-width:  95px; }
+.c-tier     { min-width:  82px; }
+.c-bal      { min-width:  92px; }
+.c-lbpu     { min-width: 105px; }
+.c-origy    { min-width:  90px; }
+.c-airange  { min-width: 145px; }
+.c-aimid    { min-width: 112px; }
+.c-airat    { min-width: 220px; max-width: 240px; white-space: normal; }
+.c-airisk   { min-width: 200px; max-width: 220px; white-space: normal; }
+.c-dscr     { min-width:  68px; }
+.c-occ      { min-width:  68px; }
+.c-lender   { min-width: 165px; max-width: 190px; }
+.c-servicer { min-width: 155px; max-width: 180px; }
+.c-mat      { min-width: 100px; }
+.c-exec     { min-width: 260px; max-width: 280px; white-space: normal; }
 
 /* ─── TIER BADGE ─────────────────────────────── */
 .tier-badge {
@@ -273,14 +260,13 @@ td { padding: 10px 13px; white-space: nowrap; vertical-align: middle; }
   color: var(--text); text-decoration: none;
   border-bottom: 1px dotted var(--faint);
   font-weight: 700; font-size: 12px;
-  transition: color 0.15s, border-color 0.15s;
   display: inline-block; max-width: 200px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  vertical-align: bottom;
+  vertical-align: bottom; transition: color 0.15s, border-color 0.15s;
 }
 .prop-link:hover { color: var(--accent); border-color: var(--accent); }
 
-/* ─── TEXT CELLS (expandable) ────────────────── */
+/* ─── EXPANDABLE TEXT CELL ───────────────────── */
 .text-cell {
   font-size: 11px; color: #999; line-height: 1.4;
   word-break: break-word; white-space: normal;
@@ -291,14 +277,13 @@ td { padding: 10px 13px; white-space: nowrap; vertical-align: middle; }
 .text-cell:hover { color: #bbb; }
 .text-cell.open  { -webkit-line-clamp: unset; }
 
-/* ─── TRUNCATE CELLS (single line) ──────────── */
+/* ─── SINGLE-LINE TRUNCATE CELL ──────────────── */
 .trunc {
   display: block; overflow: hidden; text-overflow: ellipsis;
   white-space: nowrap; color: #ccc; font-size: 12px;
-  max-width: 180px;
 }
 
-/* ─── HIGHLIGHTS ─────────────────────────────── */
+/* ─── VALUE HIGHLIGHTS ───────────────────────── */
 .hi    { color: var(--accent); font-weight: 600; }
 .muted { color: var(--faint); font-size: 11px; }
 
@@ -391,10 +376,11 @@ td { padding: 10px 13px; white-space: nowrap; vertical-align: middle; }
     <table>
       <thead>
         <tr>
-          <th class="col-prop" data-sort="name">Property <span class="sort-arrow"></span></th>
+          <th class="col-prop"  data-sort="name">Property <span class="sort-arrow"></span></th>
           <th class="c-city"    data-sort="city">City <span class="sort-arrow"></span></th>
           <th class="c-state"   data-sort="state">State <span class="sort-arrow"></span></th>
           <th class="c-units"   data-sort="units">Units <span class="sort-arrow"></span></th>
+          <th class="c-yrbuilt" data-sort="yearBuilt">Yr Built <span class="sort-arrow"></span></th>
           <th class="c-score"   data-sort="adjustedScore">Score <span class="sort-arrow"></span></th>
           <th class="c-tier"    data-sort="priorityTier">Tier <span class="sort-arrow"></span></th>
           <th class="c-bal"     data-sort="balance">Balance <span class="sort-arrow"></span></th>
@@ -429,10 +415,10 @@ td { padding: 10px 13px; white-space: nowrap; vertical-align: middle; }
 // ─────────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────────
-const PASSWORD    = 'oasis2024';
-const SHEET_CSV   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRUs1ua1i9_IvnJQ_lWet1puckH_Gaf49gW3J1kHuUs-9xcP4tuzojtS9pUxdgPSOr9T88A9SLpdmT/pub?gid=0&single=true&output=csv';
-const SHEET_ID    = '1pKXelpQSWMOA9TneczajTSaDP1NqwwF14KtMmVudsTU';
-const SS_KEY      = 'oasis_auth';
+const PASSWORD  = 'oasis2024';
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRUs1ua1i9_IvnJQ_lWet1puckH_Gaf49gW3J1kHuUs-9xcP4tuzojtS9pUxdgPSOr9T88A9SLpdmT/pub?gid=0&single=true&output=csv';
+const SHEET_ID  = '1pKXelpQSWMOA9TneczajTSaDP1NqwwF14KtMmVudsTU';
+const SS_KEY    = 'oasis_auth';
 
 const STATE_NAMES = {
   FL:'Florida', GA:'Georgia', TN:'Tennessee',
@@ -441,13 +427,12 @@ const STATE_NAMES = {
   TX:'Texas', LA:'Louisiana'
 };
 const TIER_ORDER = ['HOT','WARM','WATCH','WATCH*','REVIEW','PASS','PASS (no data)'];
-
-const PAGE_META = {
-  all:    ['Lead Dashboard',         'Multi-source distressed deal pipeline — Southeast US'],
-  cmbs:   ['EDGAR / CMBS',           'CMBS distressed deal pipeline'],
-  hud:    ['HUD Dashboard',          'HUD source deal pipeline'],
-  fannie: ['Fannie Dashboard',       'Fannie Mae source deal pipeline'],
-  freddie:['Freddie Dashboard',      'Freddie Mac source deal pipeline'],
+const PAGE_META  = {
+  all:    ['Lead Dashboard',   'Multi-source distressed deal pipeline — Southeast US'],
+  cmbs:   ['EDGAR / CMBS',    'CMBS distressed deal pipeline'],
+  hud:    ['HUD Dashboard',   'HUD source deal pipeline'],
+  fannie: ['Fannie Dashboard','Fannie Mae source deal pipeline'],
+  freddie:['Freddie Dashboard','Freddie Mac source deal pipeline'],
 };
 
 // ─────────────────────────────────────────────────
@@ -527,7 +512,7 @@ function parseCSV(text) {
 }
 
 // ─────────────────────────────────────────────────
-// SCHEMA
+// SCHEMA HELPERS
 // ─────────────────────────────────────────────────
 function fv(row, keys) {
   for (const k of keys) {
@@ -536,19 +521,20 @@ function fv(row, keys) {
   }
   return null;
 }
-
 function toNum(v) {
   if (v == null || v === '') return null;
   const n = parseFloat(String(v).replace(/[$,%]/g, '').trim());
   return isFinite(n) ? n : null;
 }
-
 function toInt(v) {
   if (v == null || v === '') return null;
   const n = parseInt(String(v).trim(), 10);
   return isFinite(n) ? n : null;
 }
 
+// ─────────────────────────────────────────────────
+// ROW PARSER
+// ─────────────────────────────────────────────────
 function parseRow(row, i) {
   const noteDate = fv(row, ['Note Date','note_date']);
   const rawOrig  = fv(row, ['origination_year','Origination Year']);
@@ -560,6 +546,7 @@ function parseRow(row, i) {
     state:           fv(row, ['state','State','Property State']) || '',
     source:          fv(row, ['source','Data Source','Source','_source']) || 'Unknown',
     units:           fv(row, ['units','Units','number_of_units','Unit Count','Property Acquisition Total Unit Count']) || '',
+    yearBuilt:       toInt(fv(row, ['year_built','Year Built','yearBuilt'])),
     dscr:            toNum(fv(row, ['dscr','DSCR','Underwritten DSCR','UW DSCR','DSCR (NCF)'])),
     occupancy:       toNum(fv(row, ['occupancy','Occupancy','Physical Occupancy %','Occupancy %'])),
     balance:         toNum(fv(row, ['loan_balance','Loan Balance','balance','UPB - Current','Current Balance','Current UPB','Current Unpaid Principal Balance'])) || 0,
@@ -568,7 +555,6 @@ function parseRow(row, i) {
     ownerGp:         fv(row, ['owner_gp','Owner/GP','Owner GP','Borrower Entity','Borrower','Sponsor','Sponsor Name']) || '',
     servicer:        fv(row, ['servicer','Servicer','Primary Servicer','Master Servicer','Special Servicer']) || '',
     originationYear: toInt(origYear),
-    yearBuilt:       toInt(fv(row, ['year_built','Year Built'])),
     aiRentLow:       toNum(fv(row, ['ai_rent_low','AI Rent Low'])),
     aiRentHigh:      toNum(fv(row, ['ai_rent_high','AI Rent High'])),
     aiRentMid:       toNum(fv(row, ['ai_rent_mid','ai_rent_midpoint','AI Rent Midpoint'])),
@@ -594,18 +580,16 @@ function parseRow(row, i) {
 // ─────────────────────────────────────────────────
 // FALLBACK DATA
 // ─────────────────────────────────────────────────
-const FALLBACK_RAW = [
-  { name:'The Hill', city:'Columbus', state:'GA', source:'CMBS', units:'258', dscr:null, occupancy:58.14, balance:4100000, maturity:'01-06-2029', adjustedScore:100, priorityTier:'HOT', distressSignals:'Payment Status: 2; Special Servicer; Workout; Low Occupancy', lender:'Argentic Real Estate Finance 2 LLC', servicer:'Berkadia', executiveSummary:'', aiRentRationale:'', aiRentRisk:'' },
-  { name:'Residence at Patriot Place', city:'Columbus', state:'GA', source:'CMBS', units:'257', dscr:null, occupancy:null, balance:33000000, maturity:'12-06-2028', adjustedScore:100, priorityTier:'HOT', distressSignals:'Payment Status: 3; Special Servicer; Workout', lender:'UBS AG', servicer:'Midland Loan Services', executiveSummary:'', aiRentRationale:'', aiRentRisk:'' },
-  { name:'THE WYMORE 360', city:'Altamonte Springs', state:'FL', source:'CMBS', units:'200', dscr:0.4983, occupancy:81.0, balance:33000000, maturity:'11-06-2029', adjustedScore:40, priorityTier:'WATCH', distressSignals:'Low DSCR', lender:'DBR Investments Co. Limited', servicer:'Wells Fargo Bank, NA', executiveSummary:'', aiRentRationale:'', aiRentRisk:'' },
-];
-const FALLBACK = FALLBACK_RAW.map((l, i) => {
+const FALLBACK = [
+  { name:'The Hill', city:'Columbus', state:'GA', source:'CMBS', units:'258', yearBuilt:1988, dscr:null, occupancy:58.14, balance:4100000, maturity:'01-06-2029', adjustedScore:100, priorityTier:'HOT', distressSignals:'Payment Status: 2; Special Servicer; Workout; Low Occupancy', lender:'Argentic Real Estate Finance 2 LLC', servicer:'Berkadia', executiveSummary:'', aiRentRationale:'', aiRentRisk:'' },
+  { name:'Residence at Patriot Place', city:'Columbus', state:'GA', source:'CMBS', units:'257', yearBuilt:2002, dscr:null, occupancy:null, balance:33000000, maturity:'12-06-2028', adjustedScore:100, priorityTier:'HOT', distressSignals:'Payment Status: 3; Special Servicer; Workout', lender:'UBS AG', servicer:'Midland Loan Services', executiveSummary:'', aiRentRationale:'', aiRentRisk:'' },
+  { name:'THE WYMORE 360', city:'Altamonte Springs', state:'FL', source:'CMBS', units:'200', yearBuilt:2015, dscr:0.4983, occupancy:81.0, balance:33000000, maturity:'11-06-2029', adjustedScore:40, priorityTier:'WATCH', distressSignals:'Low DSCR', lender:'DBR Investments Co. Limited', servicer:'Wells Fargo Bank, NA', executiveSummary:'', aiRentRationale:'', aiRentRisk:'' },
+].map((l, i) => {
   const uNum = parseInt(l.units, 10);
   return {
     ...l,
-    ownerGp:'', originationYear:null, yearBuilt:null,
-    aiRentLow:null, aiRentHigh:null, aiRentMid:null,
-    aiRentRange:'', aiRentRangeSort:0,
+    ownerGp:'', originationYear:null,
+    aiRentLow:null, aiRentHigh:null, aiRentMid:null, aiRentRange:'', aiRentRangeSort:0,
     cmbsTrust:'', loanNumber:'', transactionId:'',
     loanBasisPerUnit: (l.balance && uNum > 0) ? Math.round(l.balance / uNum) : null,
     _row: i + 2,
@@ -617,8 +601,13 @@ const FALLBACK = FALLBACK_RAW.map((l, i) => {
 // ─────────────────────────────────────────────────
 const statusEl = document.getElementById('status');
 function showStatus(msg, bg, color) {
+  Object.assign(statusEl.style, {
+    background: bg, color: color, opacity: '1',
+    position:'fixed', top:'14px', right:'14px', zIndex:'9500',
+    fontSize:'11px', fontFamily:'Inter,sans-serif',
+    padding:'6px 14px', borderRadius:'8px', pointerEvents:'none',
+  });
   statusEl.textContent = msg;
-  statusEl.style.cssText = `background:${bg};color:${color};opacity:1;position:fixed;top:14px;right:14px;z-index:9500;font-size:11px;font-family:Inter,sans-serif;padding:6px 14px;border-radius:8px;pointer-events:none;transition:opacity 0.5s;`;
   setTimeout(() => { statusEl.style.opacity = '0.3'; }, 3500);
 }
 
@@ -649,7 +638,7 @@ function loadData() {
 }
 
 // ─────────────────────────────────────────────────
-// HELPERS
+// CORE HELPERS
 // ─────────────────────────────────────────────────
 function isActionable(l) { return l.priorityTier && !l.priorityTier.startsWith('PASS'); }
 
@@ -662,15 +651,13 @@ function matchesPage(l) {
   return true;
 }
 
-function activeLeads() {
-  return LEADS.filter(l => isActionable(l) && matchesPage(l));
-}
+function activeLeads() { return LEADS.filter(l => isActionable(l) && matchesPage(l)); }
 
 function getFiltered() {
   return activeLeads()
     .filter(l => {
-      if (fState  && l.state !== fState)   return false;
-      if (fCity   && l.city  !== fCity)    return false;
+      if (fState  && l.state !== fState)  return false;
+      if (fCity   && l.city  !== fCity)   return false;
       if (fTier) {
         if (fTier === 'WATCH') { if (!['WATCH','WATCH*'].includes(l.priorityTier)) return false; }
         else if (l.priorityTier !== fTier) return false;
@@ -683,7 +670,7 @@ function getFiltered() {
       if (sortCol === 'priorityTier') {
         va = TIER_ORDER.indexOf(va); vb = TIER_ORDER.indexOf(vb);
       } else if (['balance','adjustedScore','loanBasisPerUnit','originationYear',
-                  'aiRentMid','aiRentRangeSort','units'].includes(sortCol)) {
+                  'yearBuilt','aiRentMid','aiRentRangeSort','units'].includes(sortCol)) {
         va = Number(va) || 0; vb = Number(vb) || 0;
       } else if (['dscr','occupancy'].includes(sortCol)) {
         va = va == null ? -Infinity : Number(va);
@@ -696,43 +683,31 @@ function getFiltered() {
     });
 }
 
+// ─────────────────────────────────────────────────
+// FORMAT HELPERS
+// ─────────────────────────────────────────────────
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-function fmt$(n) {
-  if (!n) return '<span class="muted">—</span>';
-  return n >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : `$${(n / 1e3).toFixed(0)}K`;
-}
-
-function fmtNum(n, dec = 2) {
-  return n == null ? '<span class="muted">—</span>' : Number(n).toFixed(dec);
-}
-
-function fmtPct(n) {
-  return n == null ? '<span class="muted">—</span>' : `${Number(n).toFixed(1)}%`;
-}
-
-function scoreColor(s) {
-  return s >= 85 ? '#ff4444' : s >= 60 ? '#ff8800' : s >= 30 ? '#ADFF2F' : '#2A2A2A';
-}
+function dash(v)       { return v ? esc(v) : '<span class="muted">—</span>'; }
+function fmt$(n)       { return n ? (n >= 1e6 ? `$${(n/1e6).toFixed(1)}M` : `$${(n/1e3).toFixed(0)}K`) : '<span class="muted">—</span>'; }
+function fmtNum(n,d=2) { return n == null ? '<span class="muted">—</span>' : Number(n).toFixed(d); }
+function fmtPct(n)     { return n == null ? '<span class="muted">—</span>' : `${Number(n).toFixed(1)}%`; }
+function scoreColor(s) { return s >= 85 ? '#ff4444' : s >= 60 ? '#ff8800' : s >= 30 ? '#ADFF2F' : '#2A2A2A'; }
 
 function tierCls(t) {
-  if (!t || t.startsWith('PASS')) return 'PASS';
-  if (t.startsWith('HOT'))  return 'HOT';
-  if (t.startsWith('WARM')) return 'WARM';
-  if (t.startsWith('WATCH'))return 'WATCH';
+  if (!t || t.startsWith('PASS'))  return 'PASS';
+  if (t.startsWith('HOT'))         return 'HOT';
+  if (t.startsWith('WARM'))        return 'WARM';
+  if (t.startsWith('WATCH'))       return 'WATCH';
   return 'PASS';
 }
-
-function dash(v) { return v ? esc(v) : '<span class="muted">—</span>'; }
 
 function textCell(v) {
   if (!v) return '<span class="muted">—</span>';
   return `<div class="text-cell" title="Click to expand" onclick="this.classList.toggle('open')">${esc(v)}</div>`;
 }
-
-function truncCell(v, maxW = 180) {
+function truncCell(v, maxW = 175) {
   if (!v) return '<span class="muted">—</span>';
   return `<span class="trunc" style="max-width:${maxW}px" title="${esc(v)}">${esc(v)}</span>`;
 }
@@ -746,7 +721,7 @@ function renderStats() {
   const warm  = leads.filter(l => l.priorityTier === 'WARM').length;
   const watch = leads.filter(l => ['WATCH','WATCH*'].includes(l.priorityTier)).length;
   const bal   = leads.reduce((s, l) => s + (l.balance || 0), 0);
-  const states= new Set(leads.map(l => l.state).filter(Boolean)).size;
+  const sts   = new Set(leads.map(l => l.state).filter(Boolean)).size;
 
   document.getElementById('statsRow').innerHTML = [
     `<div class="stat"><div class="stat-label">Actionable Leads</div><div class="stat-value">${leads.length}</div></div>`,
@@ -754,7 +729,7 @@ function renderStats() {
     `<div class="stat s-warm"><div class="stat-label">Warm</div><div class="stat-value c-warm">${warm}</div></div>`,
     `<div class="stat s-watch"><div class="stat-label">Watch</div><div class="stat-value c-accent">${watch}</div></div>`,
     `<div class="stat"><div class="stat-label">Total Exposure</div><div class="stat-value" style="font-size:20px">$${(bal/1e6).toFixed(0)}M</div></div>`,
-    `<div class="stat"><div class="stat-label">States</div><div class="stat-value">${states}</div></div>`,
+    `<div class="stat"><div class="stat-label">States</div><div class="stat-value">${sts}</div></div>`,
   ].join('');
 }
 
@@ -768,24 +743,24 @@ function renderStateGrid() {
     if (!map[l.state]) map[l.state] = { total:0, hot:0, warm:0, watch:0 };
     map[l.state].total++;
     const t = l.priorityTier;
-    if (t === 'HOT')  map[l.state].hot++;
-    else if (t === 'WARM') map[l.state].warm++;
+    if (t === 'HOT')                        map[l.state].hot++;
+    else if (t === 'WARM')                  map[l.state].warm++;
     else if (t === 'WATCH' || t === 'WATCH*') map[l.state].watch++;
   });
 
   document.getElementById('stateGrid').innerHTML = Object.entries(map)
     .sort((a, b) => b[1].total - a[1].total)
     .map(([st, d]) => {
-      const t = d.total;
+      const t  = d.total;
       const pH = d.hot/t*100, pW = d.warm/t*100, pWa = d.watch/t*100;
       const meta = [
-        d.hot   ? `<strong class="c-hot">${d.hot} HOT</strong>`    : '',
-        d.warm  ? `<strong class="c-warm">${d.warm} WARM</strong>` : '',
-        d.watch ? `<strong class="c-accent">${d.watch} WATCH</strong>` : '',
-      ].filter(Boolean).join(' &middot; ');
+        d.hot   ? `<strong class="c-hot">${d.hot} HOT</strong>`      : '',
+        d.warm  ? `<strong class="c-warm">${d.warm} WARM</strong>`    : '',
+        d.watch ? `<strong class="c-accent">${d.watch} WATCH</strong>`: '',
+      ].filter(Boolean).join(' · ');
       return `<div class="state-card${fState===st?' active':''}" data-state="${st}">
         <div class="state-name">${STATE_NAMES[st] || st}</div>
-        <div class="state-meta">${t} lead${t!==1?'s':''}${meta ? ' &nbsp;·&nbsp; '+meta : ''}</div>
+        <div class="state-meta">${t} lead${t!==1?'s':''}${meta ? ' · ' + meta : ''}</div>
         <div class="state-bar">
           ${pH  ? `<div style="width:${pH }%;background:#ff4444"></div>` : ''}
           ${pW  ? `<div style="width:${pW }%;background:#ff8800"></div>` : ''}
@@ -821,16 +796,15 @@ function renderTierPills() {
     { val:'WARM',  label:'WARM',  cls:'tp-warm'   },
     { val:'WATCH', label:'WATCH', cls:'tp-watch'  },
   ];
-  document.getElementById('tierPills').innerHTML = defs.map(d =>
-    `<div class="tier-pill${fTier===d.val?' '+d.cls:''}" data-tier="${d.val}">${d.label}</div>`
-  ).join('');
+  document.getElementById('tierPills').innerHTML = defs
+    .map(d => `<div class="tier-pill${fTier===d.val?' '+d.cls:''}" data-tier="${d.val}">${d.label}</div>`)
+    .join('');
 }
 
 // ─────────────────────────────────────────────────
 // RENDER: TABLE
 // ─────────────────────────────────────────────────
 function renderTable() {
-  // Update sort arrows
   document.querySelectorAll('thead th[data-sort]').forEach(th => {
     const arrow = th.querySelector('.sort-arrow');
     if (arrow) arrow.textContent = th.dataset.sort === sortCol ? (sortDir === 1 ? ' ▲' : ' ▼') : '';
@@ -840,7 +814,7 @@ function renderTable() {
 
   if (!data.length) {
     document.getElementById('tBody').innerHTML =
-      `<tr><td colspan="19" style="padding:36px;color:var(--faint);text-align:center;font-size:13px">No deals match the current filters.</td></tr>`;
+      `<tr><td colspan="20" style="padding:36px;color:var(--faint);text-align:center;font-size:13px">No deals match the current filters.</td></tr>`;
     return;
   }
 
@@ -849,7 +823,6 @@ function renderTable() {
     const scPct = Math.min(sc, 100);
     const tc    = tierCls(l.priorityTier);
 
-    // Property link → Google Sheet row
     const sheetUrl = l._row
       ? `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit#gid=0&range=A${l._row}`
       : '';
@@ -857,14 +830,12 @@ function renderTable() {
       ? `<a class="prop-link" href="${sheetUrl}" target="_blank" title="Open row ${l._row} in Google Sheet">${esc(l.name)}</a>`
       : `<span style="font-weight:700;font-size:12px">${esc(l.name)}</span>`;
 
-    // AI Rent Range display
     const aiRange = l.aiRentRange
       ? `<span class="hi">${esc(l.aiRentRange)}</span>`
       : (l.aiRentLow != null && l.aiRentHigh != null
           ? `<span class="hi">$${Math.round(l.aiRentLow).toLocaleString()} – $${Math.round(l.aiRentHigh).toLocaleString()}</span>`
           : '<span class="muted">—</span>');
 
-    // AI Rent Mid
     const aiMid = l.aiRentMid != null
       ? `<span class="hi">$${Math.round(l.aiRentMid).toLocaleString()}</span>`
       : '<span class="muted">—</span>';
@@ -874,6 +845,7 @@ function renderTable() {
       <td class="c-city">${dash(l.city)}</td>
       <td class="c-state">${dash(l.state)}</td>
       <td class="c-units">${dash(l.units)}</td>
+      <td class="c-yrbuilt">${l.yearBuilt || '<span class="muted">—</span>'}</td>
       <td class="c-score">
         <div class="score-wrap">
           <div class="score-bar"><div class="score-fill" style="width:${scPct}%;background:${scoreColor(sc)}"></div></div>
@@ -914,10 +886,9 @@ function refresh() {
 }
 
 // ─────────────────────────────────────────────────
-// EVENTS
+// EVENTS (bound once)
 // ─────────────────────────────────────────────────
 function bindEvents() {
-
   // Tab switching
   document.getElementById('tabs').addEventListener('click', e => {
     const tab = e.target.closest('.tab');
@@ -933,23 +904,18 @@ function bindEvents() {
 
   // State dropdown
   document.getElementById('fState').addEventListener('change', e => {
-    fState = e.target.value;
-    fCity  = '';
-    renderCityFilter();
-    renderStateGrid();
-    renderTable();
+    fState = e.target.value; fCity = '';
+    renderCityFilter(); renderStateGrid(); renderTable();
   });
 
   // City dropdown
   document.getElementById('fCity').addEventListener('change', e => {
-    fCity = e.target.value;
-    renderTable();
+    fCity = e.target.value; renderTable();
   });
 
-  // Search
+  // Search input
   document.getElementById('fSearch').addEventListener('input', e => {
-    fSearch = e.target.value;
-    renderTable();
+    fSearch = e.target.value; renderTable();
   });
 
   // Tier pills
@@ -957,8 +923,7 @@ function bindEvents() {
     const pill = e.target.closest('.tier-pill');
     if (!pill) return;
     fTier = pill.dataset.tier;
-    renderTierPills();
-    renderTable();
+    renderTierPills(); renderTable();
   });
 
   // State grid cards
@@ -969,14 +934,12 @@ function bindEvents() {
     fState   = fState === st ? '' : st;
     document.getElementById('fState').value = fState;
     fCity    = '';
-    renderCityFilter();
-    renderStateGrid();
-    renderTable();
+    renderCityFilter(); renderStateGrid(); renderTable();
   });
 
-  // Column sort (delegated to thead)
+  // Column sort — single delegated listener on thead
   document.querySelector('thead').addEventListener('click', e => {
-    const th  = e.target.closest('th[data-sort]');
+    const th = e.target.closest('th[data-sort]');
     if (!th) return;
     const col = th.dataset.sort;
     if (sortCol === col) sortDir *= -1;
@@ -988,12 +951,9 @@ function bindEvents() {
 // ─────────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────────
-function init() {
-  refresh();
-  bindEvents();
-}
+function init() { refresh(); bindEvents(); }
 
-// Auto-load if already authenticated
+// Auto-load if session already authenticated
 if (isAuthed()) loadData();
 </script>
 </body>
