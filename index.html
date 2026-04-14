@@ -221,8 +221,11 @@
     flex-wrap: wrap;
     align-items: center;
   }
-  .header, .nav-tabs, .map-section, .filters { position: relative; z-index: 20; }
-  .table-wrap { position: relative; z-index: 1; }
+  .header, .nav-tabs, .map-section, .filters { position: relative; z-index: 5000; }
+  .nav-tabs, .filters, .filter-group, .filter-group select, .filter-group input, .tier-pills, .tier-pill, .state-grid, .state-card { pointer-events: auto; }
+  .table-wrap { position: relative; z-index: 1; margin-top: 0; }
+  thead th, tbody td.col-property { z-index: 2; }
+  #statsRow, #stateGrid, #tierPills, #filterState, #filterCity, #filterSource, #filterSearch { position: relative; z-index: 5001; }
   .filter-group label {
     font-size: 10px;
     font-weight: 500;
@@ -1168,6 +1171,53 @@ function bindEvents() {
   if (eventsBound) return;
   eventsBound = true;
 
+  document.addEventListener('click', e => {
+    const tab = e.target.closest('.nav-tab');
+    if (tab) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentPage = tab.dataset.page;
+      filterState = '';
+      filterCity = '';
+      filterSource = '';
+      filterSearch = '';
+      filterTier = '';
+      sortCol = 'adjustedScore';
+      sortDir = -1;
+      const fs = document.getElementById('filterSearch'); if (fs) fs.value = '';
+      updatePageMeta();
+      buildStats();
+      buildStateGrid();
+      buildFilters();
+      const stateEl = document.getElementById('filterState'); if (stateEl) stateEl.value = '';
+      const cityEl = document.getElementById('filterCity'); if (cityEl) cityEl.value = '';
+      const srcEl = document.getElementById('filterSource'); if (srcEl) srcEl.value = '';
+      buildTierPills();
+      renderTable();
+      return;
+    }
+
+    const pill = e.target.closest('.tier-pill');
+    if (pill) {
+      filterTier = pill.dataset.tier;
+      buildTierPills();
+      renderTable();
+      return;
+    }
+
+    const card = e.target.closest('.state-card');
+    if (card) {
+      const st = card.dataset.state;
+      filterState = filterState === st ? '' : st;
+      const stateEl = document.getElementById('filterState'); if (stateEl) stateEl.value = filterState;
+      filterCity = '';
+      updateCityFilter();
+      buildStateGrid();
+      renderTable();
+      return;
+    }
+  }, true);
+
   document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -1244,7 +1294,7 @@ function bindEvents() {
 // STATUS INDICATOR
 // ─────────────────────────────────────────────
 const statusEl = document.createElement('div');
-statusEl.style.cssText = 'position:fixed;top:12px;right:12px;z-index:9000;font-size:11px;font-family:Inter,sans-serif;padding:6px 14px;border-radius:8px;';
+statusEl.style.cssText = 'position:fixed;top:12px;right:12px;z-index:9000;font-size:11px;font-family:Inter,sans-serif;padding:6px 14px;border-radius:8px;pointer-events:none;';
 document.body.appendChild(statusEl);
 
 function showStatus(msg, color) {
