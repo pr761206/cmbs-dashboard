@@ -221,6 +221,8 @@
     flex-wrap: wrap;
     align-items: center;
   }
+  .header, .nav-tabs, .map-section, .filters { position: relative; z-index: 20; }
+  .table-wrap { position: relative; z-index: 1; }
   .filter-group label {
     font-size: 10px;
     font-weight: 500;
@@ -883,6 +885,7 @@ let filterSearch = '';
 let filterTier   = '';
 let sortCol      = 'adjustedScore';
 let sortDir      = -1;
+let eventsBound  = false;
 let currentPage  = 'all';
 
 // ─────────────────────────────────────────────
@@ -1162,6 +1165,9 @@ function renderTable() {
 // EVENTS
 // ─────────────────────────────────────────────
 function bindEvents() {
+  if (eventsBound) return;
+  eventsBound = true;
+
   document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -1179,6 +1185,9 @@ function bindEvents() {
       buildStats();
       buildStateGrid();
       buildFilters();
+      document.getElementById('filterState').value = '';
+      document.getElementById('filterCity').value = '';
+      document.getElementById('filterSource').value = '';
       buildTierPills();
       renderTable();
     });
