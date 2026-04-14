@@ -155,6 +155,31 @@
   }
   .logout-btn:hover { color: #fff; border-color: #555; }
 
+  /* ── Nav Tabs ── */
+  .nav-tabs {
+    display: flex;
+    gap: 10px;
+    padding: 0 48px 10px;
+    flex-wrap: wrap;
+  }
+  .nav-tab {
+    padding: 8px 16px;
+    background: #1A1A1A;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #888;
+    border: 1px solid #2A2A2A;
+    transition: all 0.15s;
+  }
+  .nav-tab:hover { border-color: #ADFF2F; color: #FFFFFF; }
+  .nav-tab.active {
+    background: #ADFF2F;
+    color: #0D0D0D;
+    border-color: #ADFF2F;
+    font-weight: 700;
+  }
+
   /* ── Stat Cards ── */
   .stats-row {
     display: flex;
@@ -470,7 +495,7 @@
 
   /* ── Responsive ── */
   @media (max-width: 768px) {
-    .header, .stats-row, .filters, .table-wrap, .map-section, .footer { padding-left: 20px; padding-right: 20px; }
+    .header, .nav-tabs, .stats-row, .filters, .table-wrap, .map-section, .footer { padding-left: 20px; padding-right: 20px; }
     .header h1 { font-size: 28px; }
     .stat-card .value { font-size: 28px; }
   }
@@ -503,6 +528,14 @@
     <div class="brand-tag">Oasis CRE Advisors</div>
     <div class="logout-btn" onclick="logout()">Log out</div>
   </div>
+</div>
+
+<div class="nav-tabs">
+  <div class="nav-tab active" data-page="all">All Sources</div>
+  <div class="nav-tab" data-page="cmbs">EDGAR / CMBS</div>
+  <div class="nav-tab" data-page="hud">HUD</div>
+  <div class="nav-tab" data-page="fannie">Fannie</div>
+  <div class="nav-tab" data-page="freddie">Freddie</div>
 </div>
 
 <div class="stats-row" id="statsRow"></div>
@@ -541,13 +574,19 @@
         <th data-sort="state">State <span class="sort-arrow"></span></th>
         <th data-sort="source">Source <span class="sort-arrow"></span></th>
         <th data-sort="units">Units <span class="sort-arrow"></span></th>
-        <th data-sort="score">Score <span class="sort-arrow"></span></th>
-        <th data-sort="tier">Tier <span class="sort-arrow"></span></th>
+        <th data-sort="adjustedScore">Score <span class="sort-arrow"></span></th>
+        <th data-sort="priorityTier">Tier <span class="sort-arrow"></span></th>
         <th data-sort="dscr">DSCR <span class="sort-arrow"></span></th>
         <th data-sort="occupancy">Occ % <span class="sort-arrow"></span></th>
         <th data-sort="balance">Balance <span class="sort-arrow"></span></th>
         <th data-sort="loanBasisPerUnit">Loan $/Unit <span class="sort-arrow"></span></th>
         <th data-sort="avgRent">Avg Rent <span class="sort-arrow"></span></th>
+        <th class="hud-only" data-sort="originationYear">Origination Year <span class="sort-arrow"></span></th>
+        <th class="hud-only" data-sort="yearBuilt">Year Built <span class="sort-arrow"></span></th>
+        <th class="hud-only" data-sort="aiRentRangeSort">AI Rent Range <span class="sort-arrow"></span></th>
+        <th class="hud-only" data-sort="aiRentMid">AI Rent Midpoint <span class="sort-arrow"></span></th>
+        <th class="hud-only" data-sort="aiRentRationale">AI Rent Rationale <span class="sort-arrow"></span></th>
+        <th class="hud-only" data-sort="aiRentRisk">AI Rent Risk Caveat <span class="sort-arrow"></span></th>
         <th data-sort="maturity">Maturity <span class="sort-arrow"></span></th>
         <th data-sort="lender">Lender <span class="sort-arrow"></span></th>
         <th data-sort="servicer">Servicer <span class="sort-arrow"></span></th>
@@ -690,6 +729,14 @@ function parseSheetRow(row) {
     lender:            firstValue(row, ['lender', 'Lender']),
     servicer:          firstValue(row, ['servicer', 'Servicer']),
     avgRent:           firstValue(row, ['avg_rent', 'Avg Rent', 'Average Rent', 'Monthly Rent', 'monthly_rent']),
+    originationYear:   firstValue(row, ['origination_year', 'Origination Year']),
+    yearBuilt:         firstValue(row, ['year_built', 'Year Built']),
+    aiRentLow:         firstValue(row, ['ai_rent_low', 'AI Rent Low']),
+    aiRentHigh:        firstValue(row, ['ai_rent_high', 'AI Rent High']),
+    aiRentMid:         firstValue(row, ['ai_rent_mid', 'AI Rent Midpoint']),
+    aiRentRange:       firstValue(row, ['ai_rent_range', 'AI Rent Range']),
+    aiRentRationale:   firstValue(row, ['ai_rent_rationale', 'AI Rent Rationale']),
+    aiRentRisk:        firstValue(row, ['ai_rent_risk', 'AI Rent Risk Caveat']),
     executiveSummary:  firstValue(row, ['executiveSummary', 'Executive Summary', 'executive_summary']),
     acquisitionAngle:  firstValue(row, ['acquisitionAngle', 'Acquisition Angle', 'acquisition_angle']),
     distressSignals:   firstValue(row, ['distressSignals', 'Distress Signals', 'distress_signals', 'signals']),
@@ -717,6 +764,12 @@ function parseSheetRow(row) {
   out.baseDistressScore = parseIntSafe(out.baseDistressScore);
   out.scoreAdjustment   = parseIntSafe(out.scoreAdjustment) || 0;
   out.avgRent           = parseNum(out.avgRent);
+  out.originationYear   = parseIntSafe(out.originationYear);
+  out.yearBuilt         = parseIntSafe(out.yearBuilt);
+  out.aiRentLow         = parseNum(out.aiRentLow);
+  out.aiRentHigh        = parseNum(out.aiRentHigh);
+  out.aiRentMid         = parseNum(out.aiRentMid);
+  out.aiRentRangeSort   = out.aiRentMid || out.aiRentLow || 0;
   out.units             = out.units || '';
   out.priorityTier      = out.priorityTier || 'PASS (no data)';
   out.distressSignals   = out.distressSignals || '';
@@ -760,6 +813,14 @@ function normalizeFallbackLead(l) {
     lender:            l.lender || '',
     servicer:          l.servicer || '',
     avgRent:           l.avgRent || null,
+    originationYear:   l.originationYear || null,
+    yearBuilt:         l.yearBuilt || null,
+    aiRentLow:         l.aiRentLow || null,
+    aiRentHigh:        l.aiRentHigh || null,
+    aiRentMid:         l.aiRentMid || null,
+    aiRentRange:       l.aiRentRange || '',
+    aiRentRationale:   l.aiRentRationale || '',
+    aiRentRisk:        l.aiRentRisk || '',
     executiveSummary:  l.executiveSummary || l.executive_summary || '',
     acquisitionAngle:  l.acquisitionAngle || '',
     distressSignals:   l.distressSignals || l.distress_signals || l.signals || '',
@@ -777,6 +838,7 @@ function normalizeFallbackLead(l) {
   };
   const unitsNum = parseInt(out.units, 10);
   out.loanBasisPerUnit = (out.balance && unitsNum > 0) ? Math.round(out.balance / unitsNum) : null;
+  out.aiRentRangeSort = out.aiRentMid || out.aiRentLow || 0;
   return out;
 }
 
@@ -791,11 +853,23 @@ let filterSearch = '';
 let filterTier   = '';
 let sortCol      = 'adjustedScore';
 let sortDir      = -1;
+let currentPage  = 'all';
 
 // ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
+function updatePageMeta() {
+  const titleEl = document.querySelector('.header h1');
+  const subEl = document.querySelector('.header .subtitle');
+  const labels = { all: 'Lead Dashboard', cmbs: 'EDGAR / CMBS Dashboard', hud: 'HUD Dashboard', fannie: 'Fannie Dashboard', freddie: 'Freddie Dashboard' };
+  titleEl.innerHTML = `Pre-Stress <span>${labels[currentPage]}</span>`;
+  subEl.innerHTML = currentPage === 'all'
+    ? 'Multi-source distressed deal pipeline'
+    : `Source-specific view for ${labels[currentPage].replace(' Dashboard','')}`;
+}
+
 function init() {
+  updatePageMeta();
   buildStats();
   buildStateGrid();
   buildFilters();
@@ -808,9 +882,26 @@ function isActionable(l) {
   return l.priorityTier && !l.priorityTier.startsWith('PASS');
 }
 
+function matchesPage(l) {
+  const src = (l.source || '').toLowerCase();
+  if (currentPage === 'cmbs') return src.includes('cmbs') || src.includes('edgar');
+  if (currentPage === 'hud') return src.includes('hud');
+  if (currentPage === 'fannie') return src.includes('fannie') || src.includes('fnma');
+  if (currentPage === 'freddie') return src.includes('freddie') || src.includes('fhlmc');
+  return true;
+}
+
+function toggleHUDColumns() {
+  const show = currentPage === 'hud';
+  document.querySelectorAll('.hud-only').forEach(el => {
+    el.style.display = show ? '' : 'none';
+  });
+}
+
 function filtered() {
   return LEADS.filter(l => {
     if (!isActionable(l)) return false;
+    if (!matchesPage(l)) return false;
     if (filterState  && l.state  !== filterState)  return false;
     if (filterCity   && l.city   !== filterCity)   return false;
     if (filterSource && l.source !== filterSource) return false;
@@ -830,7 +921,7 @@ function filtered() {
 // STATS
 // ─────────────────────────────────────────────
 function buildStats() {
-  const ACTIVE   = LEADS.filter(isActionable);
+  const ACTIVE   = LEADS.filter(l => isActionable(l) && matchesPage(l));
   const total    = ACTIVE.length;
   const hot      = ACTIVE.filter(l => l.priorityTier === 'HOT').length;
   const warm     = ACTIVE.filter(l => l.priorityTier === 'WARM').length;
@@ -853,7 +944,7 @@ function buildStats() {
 // ─────────────────────────────────────────────
 function buildStateGrid() {
   const states = {};
-  LEADS.filter(isActionable).forEach(l => {
+  LEADS.filter(l => isActionable(l) && matchesPage(l)).forEach(l => {
     if (!states[l.state]) states[l.state] = {total:0, tiers:{}};
     states[l.state].total++;
     states[l.state].tiers[l.priorityTier] = (states[l.state].tiers[l.priorityTier]||0) + 1;
@@ -887,7 +978,7 @@ function buildStateGrid() {
 // FILTERS
 // ─────────────────────────────────────────────
 function buildFilters() {
-  const ACTIVE  = LEADS.filter(isActionable);
+  const ACTIVE  = LEADS.filter(l => isActionable(l) && matchesPage(l));
   const states  = [...new Set(ACTIVE.map(l=>l.state).filter(Boolean))].sort();
   const stSel   = document.getElementById('filterState');
   stSel.innerHTML = '<option value="">All States</option>' + states.map(s=>`<option value="${s}">${STATE_NAMES[s]||s}</option>`).join('');
@@ -900,7 +991,7 @@ function buildFilters() {
 }
 
 function updateCityFilter() {
-  const base   = LEADS.filter(isActionable);
+  const base   = LEADS.filter(l => isActionable(l) && matchesPage(l));
   const pool   = filterState ? base.filter(l=>l.state===filterState) : base;
   const cities = [...new Set(pool.map(l=>l.city).filter(Boolean))].sort();
   const cSel   = document.getElementById('filterCity');
@@ -923,13 +1014,15 @@ function renderTable() {
   const data = filtered().sort((a,b) => {
     let va = a[sortCol], vb = b[sortCol];
     if (sortCol === 'priorityTier') { va = TIER_ORDER.indexOf(va); vb = TIER_ORDER.indexOf(vb); }
-    if (['units','balance','adjustedScore','loanBasisPerUnit','avgRent'].includes(sortCol)) { va = Number(va)||0; vb = Number(vb)||0; }
+    if (['units','balance','adjustedScore','loanBasisPerUnit','avgRent','originationYear','yearBuilt','aiRentMid','aiRentRangeSort'].includes(sortCol)) { va = Number(va)||0; vb = Number(vb)||0; }
     if (['dscr','occupancy'].includes(sortCol)) { va = va===null?-1:Number(va); vb = vb===null?-1:Number(vb); }
-    if (['lender','servicer','source','name','city','state','maturity'].includes(sortCol)) { va = (va||'').toString().toLowerCase(); vb = (vb||'').toString().toLowerCase(); }
+    if (['lender','servicer','source','name','city','state','maturity','aiRentRationale','aiRentRisk'].includes(sortCol)) { va = (va||'').toString().toLowerCase(); vb = (vb||'').toString().toLowerCase(); }
     if (va < vb) return -1 * sortDir;
     if (va > vb) return  1 * sortDir;
     return 0;
   });
+
+  toggleHUDColumns();
 
   document.getElementById('tableBody').innerHTML = data.map(l => {
     const tierLabel  = l.priorityTier || 'PASS';
@@ -957,6 +1050,17 @@ function renderTable() {
     const rentDisplay = l.avgRent
       ? `<span class="calc-value highlight">$${Math.round(l.avgRent).toLocaleString()}</span>`
       : `<span class="calc-na" title="Add avg_rent column to sheet or connect RentCast">—</span>`;
+
+    const aiRentRangeDisplay = l.aiRentRange
+      ? `<span class="calc-value">${l.aiRentRange}</span>`
+      : (l.aiRentLow !== null && l.aiRentHigh !== null
+          ? `<span class="calc-value">$${Math.round(l.aiRentLow).toLocaleString()} - $${Math.round(l.aiRentHigh).toLocaleString()}</span>`
+          : `<span class="calc-na">—</span>`);
+    const aiRentMidDisplay = l.aiRentMid !== null
+      ? `<span class="calc-value highlight">$${Math.round(l.aiRentMid).toLocaleString()}</span>`
+      : `<span class="calc-na">—</span>`;
+    const originationYearDisplay = l.originationYear ? l.originationYear : '<span style="color:#555">—</span>';
+    const yearBuiltDisplay = l.yearBuilt ? l.yearBuilt : '<span style="color:#555">—</span>';
 
     // Google Sheet row link
     const sheetId   = '1pKXelpQSWMOA9TneczajTSaDP1NqwwF14KtMmVudsTU';
@@ -993,6 +1097,12 @@ function renderTable() {
       <td>${balDisplay}</td>
       <td>${lbpuDisplay}</td>
       <td>${rentDisplay}</td>
+      <td class="hud-only">${originationYearDisplay}</td>
+      <td class="hud-only">${yearBuiltDisplay}</td>
+      <td class="hud-only">${aiRentRangeDisplay}</td>
+      <td class="hud-only">${aiRentMidDisplay}</td>
+      <td class="hud-only" style="max-width:240px;white-space:normal;line-height:1.35">${l.aiRentRationale || '<span style="color:#555">—</span>'}</td>
+      <td class="hud-only" style="max-width:240px;white-space:normal;line-height:1.35">${l.aiRentRisk || '<span style="color:#555">—</span>'}</td>
       <td>${l.maturity||'—'}</td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${l.lender||''}">${l.lender||'—'}</td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${l.servicer||''}">${l.servicer||'—'}</td>
@@ -1012,6 +1122,28 @@ function renderTable() {
 // EVENTS
 // ─────────────────────────────────────────────
 function bindEvents() {
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentPage = tab.dataset.page;
+      filterState = '';
+      filterCity = '';
+      filterSource = '';
+      filterSearch = '';
+      filterTier = '';
+      sortCol = 'adjustedScore';
+      sortDir = -1;
+      document.getElementById('filterSearch').value = '';
+      updatePageMeta();
+      buildStats();
+      buildStateGrid();
+      buildFilters();
+      buildTierPills();
+      renderTable();
+    });
+  });
+
   document.getElementById('filterState').addEventListener('change', e => {
     filterState = e.target.value;
     filterCity  = '';
