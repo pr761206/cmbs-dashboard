@@ -279,7 +279,7 @@
   }
   thead th {
     background: #1A1A1A;
-    padding: 12px 14px;
+    padding: 11px 10px;
     text-align: left;
     font-weight: 700;
     font-size: 11px;
@@ -326,7 +326,7 @@
   tbody tr:nth-child(even) { background: #0D0D0D; }
   tbody tr:hover { background: #1A3320; }
   td {
-    padding: 11px 14px;
+    padding: 10px 10px;
     white-space: nowrap;
     vertical-align: top;
   }
@@ -486,6 +486,15 @@
   }
   .state-mini-bars div { border-radius: 2px; height: 100%; }
 
+
+  /* ── Tighter First Columns ── */
+  th.col-property, td.col-property { min-width: 220px; max-width: 220px; }
+  td.col-property { overflow: hidden; text-overflow: ellipsis; }
+  thead th:nth-child(2), tbody td:nth-child(2) { min-width: 120px; max-width: 120px; }
+  thead th:nth-child(3), tbody td:nth-child(3) { min-width: 70px; max-width: 70px; }
+  thead th:nth-child(4), tbody td:nth-child(4) { min-width: 90px; max-width: 90px; }
+  thead th:nth-child(5), tbody td:nth-child(5) { min-width: 70px; max-width: 70px; }
+
   /* ── Footer ── */
   .footer {
     padding: 20px 48px;
@@ -570,6 +579,13 @@
 
 <div class="table-wrap">
   <table>
+    <colgroup>
+      <col style="width: 220px; min-width: 220px;">
+      <col style="width: 120px; min-width: 120px;">
+      <col style="width: 70px; min-width: 70px;">
+      <col style="width: 90px; min-width: 90px;">
+      <col style="width: 70px; min-width: 70px;">
+    </colgroup>
     <thead>
       <tr>
         <th class="col-property" data-sort="name">Property <span class="sort-arrow"></span></th>
@@ -583,8 +599,7 @@
         <th data-sort="occupancy">Occ % <span class="sort-arrow"></span></th>
         <th data-sort="balance">Balance <span class="sort-arrow"></span></th>
         <th data-sort="loanBasisPerUnit">Loan $/Unit <span class="sort-arrow"></span></th>
-        <th data-sort="avgRent">Avg Rent <span class="sort-arrow"></span></th>
-        <th class="hud-only" data-sort="originationYear">Origination Year <span class="sort-arrow"></span></th>
+                <th class="hud-only" data-sort="originationYear">Origination Year <span class="sort-arrow"></span></th>
         <th class="hud-only" data-sort="yearBuilt">Year Built <span class="sort-arrow"></span></th>
         <th class="hud-only" data-sort="aiRentRangeSort">AI Rent Range <span class="sort-arrow"></span></th>
         <th class="hud-only" data-sort="aiRentMid">AI Rent Midpoint <span class="sort-arrow"></span></th>
@@ -1063,11 +1078,6 @@ function renderTable() {
       ? `<span class="calc-value">$${l.loanBasisPerUnit.toLocaleString()}</span>`
       : `<span class="calc-na">—</span>`;
 
-    // Average Rent
-    const rentDisplay = l.avgRent
-      ? `<span class="calc-value highlight">$${Math.round(l.avgRent).toLocaleString()}</span>`
-      : `<span class="calc-na" title="Add avg_rent column to sheet or connect RentCast">—</span>`;
-
     const aiRentRangeDisplay = l.aiRentRange
       ? `<span class="calc-value">${l.aiRentRange}</span>`
       : (l.aiRentLow !== null && l.aiRentHigh !== null
@@ -1114,7 +1124,6 @@ function renderTable() {
       <td>${occDisplay}</td>
       <td>${balDisplay}</td>
       <td>${lbpuDisplay}</td>
-      <td>${rentDisplay}</td>
       <td class="hud-only">${originationYearDisplay}</td>
       <td class="hud-only">${yearBuiltDisplay}</td>
       <td class="hud-only">${aiRentRangeDisplay}</td>
