@@ -505,6 +505,16 @@
   }
   .footer .brand { color: #ADFF2F; font-weight: 500; }
 
+
+  th:nth-child(1), td:nth-child(1) { min-width: 210px; }
+  th:nth-child(2), td:nth-child(2) { min-width: 88px; }
+  th:nth-child(3), td:nth-child(3) { min-width: 52px; }
+  th:nth-child(4), td:nth-child(4) { min-width: 82px; }
+  th:nth-child(5), td:nth-child(5) { min-width: 58px; }
+  th:nth-child(18), td:nth-child(18),
+  th:nth-child(19), td:nth-child(19),
+  th:nth-child(20), td:nth-child(20) { min-width: 155px; max-width: 155px; }
+
   /* ── Responsive ── */
   @media (max-width: 768px) {
     .header, .nav-tabs, .stats-row, .filters, .table-wrap, .map-section, .footer { padding-left: 20px; padding-right: 20px; }
@@ -607,6 +617,7 @@
         <th class="hud-only" data-sort="aiRentRisk">AI Rent Risk Caveat <span class="sort-arrow"></span></th>
         <th data-sort="maturity">Maturity <span class="sort-arrow"></span></th>
         <th data-sort="lender">Lender <span class="sort-arrow"></span></th>
+        <th data-sort="ownerGp">Owner/GP <span class="sort-arrow"></span></th>
         <th data-sort="servicer">Servicer <span class="sort-arrow"></span></th>
         <th>Signals</th>
         <th>Executive Summary</th>
@@ -745,8 +756,8 @@ function parseSheetRow(row) {
     balance:           firstValue(row, ['loan_balance', 'Loan Balance', 'balance']),
     maturity:          firstValue(row, ['maturity_date', 'Maturity Date', 'maturity']),
     lender:            firstValue(row, ['lender', 'Lender']),
+    ownerGp:           firstValue(row, ['owner_gp', 'Owner/GP', 'Owner GP', 'owner', 'Owner']),
     servicer:          firstValue(row, ['servicer', 'Servicer']),
-    avgRent:           firstValue(row, ['avg_rent', 'Avg Rent', 'Average Rent', 'Monthly Rent', 'monthly_rent']),
     originationYear:   firstValue(row, ['origination_year', 'Origination Year']),
     yearBuilt:         firstValue(row, ['year_built', 'Year Built']),
     aiRentLow:         firstValue(row, ['ai_rent_low', 'AI Rent Low']),
@@ -793,6 +804,7 @@ function parseSheetRow(row) {
   out.distressSignals   = out.distressSignals || '';
   out.executiveSummary  = out.executiveSummary || '';
   out.lender            = out.lender || '';
+  out.ownerGp           = out.ownerGp || '';
   out.servicer          = out.servicer || '';
   out.source            = out.source || 'Unknown';
   out.city              = out.city || '';
@@ -1132,6 +1144,7 @@ function renderTable() {
       <td class="hud-only">${aiRentRiskCell}</td>
       <td>${l.maturity||'—'}</td>
       <td>${lenderCell}</td>
+      <td>${ownerGpCell}</td>
       <td>${servicerCell}</td>
       <td>${signals || '<span style="color:#555">—</span>'}</td>
       <td>${execCell}</td>
